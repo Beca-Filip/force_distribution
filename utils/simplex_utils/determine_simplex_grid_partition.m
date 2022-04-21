@@ -7,7 +7,7 @@ function m = determine_simplex_grid_partition(n,Ngrid)
 %   Inputs:
 %   n ~ affine dimension of simplex
 %   Ngrid ~ maximum number of total points on the simplex
-
+%
 %   Outputs:
 %   m ~ number of grid points along a single edge of a simplex
 
