@@ -13,6 +13,10 @@ function m = determine_simplex_grid_partition(n,Ngrid)
 
 % Lower and upper bounds based on bounds of the nchoosek function
 lb = floor(nthroot(Ngrid * factorial(n), n)) + 1 - n;
+if lb < 0
+    lb = 0;
+end
+
 ub = ceil(nthroot(Ngrid * factorial(n), n));
 
 m = lb;
