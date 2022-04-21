@@ -31,7 +31,7 @@ function J = cost_function_set(f, fmin, fmax, pcsa, vmt, M, fpassive, f0, m, r)
 % end
 % J = Jnew;
 
-excl = [];
+excl = [17];
 J = zeros(1, 17 - length(excl), 'like', casadi.MX);
 
 
