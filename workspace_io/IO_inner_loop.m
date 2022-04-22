@@ -15,7 +15,7 @@ for trial = trial_list
             for k = sample_list
 
                 % Set model parameters
-                model = set_model_parameters(data, vars, model, k, trial, speed, leg_list);
+                model = set_model_parameters(data, vars, model, k, trial, speed, leg);
 
                 % Set model weights
                 model = set_model_weights(alpha, vars, model);
@@ -27,7 +27,7 @@ for trial = trial_list
                 f_opt = sol.value(vars.variables.f);
 
                 % Calculate rmse
-                E = (E + rmse(f_opt, data.f(:,:,k,trial,speed,leg_list)).^2 * numel(f_opt));
+                E = (E + rmse(f_opt, data.f(:,:,k,trial,speed,leg)).^2 * numel(f_opt));
                 totnum = totnum + numel(f_opt);
             end
         end
