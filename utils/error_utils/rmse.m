@@ -4,6 +4,6 @@ function e = rmse(a,b)
 %
 %   e = RMSE(a,b)
 
-e = sqrt(sum((a-b).^2, 'all') ./ numel(a));
+e = sqrt(sum(sum((a-b).^2)) ./ numel(a));
 
 end
