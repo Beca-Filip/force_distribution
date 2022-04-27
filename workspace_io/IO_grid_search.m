@@ -6,8 +6,7 @@ function [err, alpha] = IO_grid_search(Ngrid, data, vars, model, sample_list, tr
 %   
 
 % Cost function parametrization dimension and affine dimension
-% d_simplex = length(data.J_max);
-d_simplex = 16;
+d_simplex = length(data.J_max);
 aff_d_simplex = d_simplex - 1;
 
 
