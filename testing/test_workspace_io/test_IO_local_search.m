@@ -37,3 +37,7 @@ alpha0(14) = 0.25;
 tic
 [alpha, E] = IO_local_search(alpha0, mesh_size, data, vars, model, sample_list, trial_list, speed_list, leg_list);
 toc
+
+suffix = datetimestr;
+
+save(sprintf('..\..\opti_results\local\local_search-%s.mat', suffix))

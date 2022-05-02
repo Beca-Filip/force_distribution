@@ -32,3 +32,7 @@ Ngrid = 17;
 tic
 [E, alpha] = IO_grid_search(Ngrid, data, vars, model, sample_list, trial_list, speed_list, leg_list);
 toc
+
+suffix = datetimestr;
+
+save(sprintf('..\..\opti_results\grid\grid_search-%s.mat', suffix))
