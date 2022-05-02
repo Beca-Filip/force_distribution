@@ -334,29 +334,60 @@ for leg = leg_list
             
             %% Cost functions modified by me
             % Sum of musculo-tendon forces
-            J1 = sum(f,1) / n; % At power 1
-            J2 = sqrt(sum(f.^2,1) / n); % At power 2
-            J3 = (sum(f.^3,1) /n).^(1/3); % At power 3
-            J4 = max(f);
-
+%             J1 = sum(f,1) / n; % At power 1
+%             J2 = sqrt(sum(f.^2,1) / n); % At power 2
+%             J3 = (sum(f.^3,1) /n).^(1/3); % At power 3
+%             J4 = max(f);
+            J1 = zeros(1, size(f, 3));
+            J2 = zeros(1, size(f, 3));
+            J3 = zeros(1, size(f, 3));
+            J4 = zeros(1, size(f, 3));            
+            for k = 1 : size(f, 3)
+                J1(:, k) = cost_function1(f(:, :, k));
+                J2(:, k) = cost_function2(f(:, :, k));
+                J3(:, k) = cost_function3(f(:, :, k));
+                J4(:, k) = cost_function4(f(:, :, k));
+            end
             % Sum of activations
-            a = (f-fmin)./fmax;
-            J5 = sum(a,1) / n; % At power 1
-            J6 = sqrt(sum(a.^2,1) / n); % At power 2
-            J7 = (sum(a.^3,1) / n).^(1/3); % At power 3
-            J8 = max(a);
-            
+%             a = (f-fmin)./fmax;
+%             J5 = sum(a,1) / n; % At power 1
+%             J6 = sqrt(sum(a.^2,1) / n); % At power 2
+%             J7 = (sum(a.^3,1) / n).^(1/3); % At power 3
+%             J8 = max(a);
+            J5 = zeros(1, size(f, 3));
+            J6 = zeros(1, size(f, 3));
+            J7 = zeros(1, size(f, 3));
+            J8 = zeros(1, size(f, 3));    
+            for k = 1 : size(f, 3)
+                J5(:, k) = cost_function5(f(:, :, k), fmin(:, :, k), fmax(:, :, k));
+                J6(:, k) = cost_function6(f(:, :, k), fmin(:, :, k), fmax(:, :, k));
+                J7(:, k) = cost_function7(f(:, :, k), fmin(:, :, k), fmax(:, :, k));
+                J8(:, k) = cost_function8(f(:, :, k), fmin(:, :, k), fmax(:, :, k));
+            end
             % Sum of muscle stresses
             stress = f./repmat(pcsa, [1 1 101]); % Muscle stress
             % (muscle stress and muscle force normalised by maximal isometric force are
             % similar criteria, i.e. just scaled by specific tension)
-            J9 = sum(stress,1) / n; % At power 1
-            J10 = sqrt(sum(stress.^2,1) / n); % At power 2
-            J11 = (sum(stress.^3,1) / n).^(1/3); % At power 3
-            J12 = max(stress);
-
+%             J9 = sum(stress,1) / n; % At power 1
+%             J10 = sqrt(sum(stress.^2,1) / n); % At power 2
+%             J11 = (sum(stress.^3,1) / n).^(1/3); % At power 3
+%             J12 = max(stress);
+            J9 = zeros(1, size(f, 3));
+            J10 = zeros(1, size(f, 3));
+            J11 = zeros(1, size(f, 3));
+            J12 = zeros(1, size(f, 3));
+            for k = 1 : size(f, 3)
+                J9(:, k) = cost_function9(f(:, :, k), pcsa);
+                J10(:, k) = cost_function10(f(:, :, k), pcsa);
+                J11(:, k) = cost_function11(f(:, :, k), pcsa);
+                J12(:, k) = cost_function12(f(:, :, k), pcsa);
+            end
             % Sum of muscle powers
-            J13 = sqrt(sum((f.*vmt).^2,1) / n); % At power 2
+%             J13 = sqrt(sum((f.*vmt).^2,1) / n); % At power 2
+            J13 = zeros(1, size(f, 3));
+            for k = 1 : size(f, 3)
+                J13(:, k) = cost_function13(f(:, :, k), vmt(:, :, k));
+            end
             
             % Sum of musculo-tendon forces scaled by maximal muscle moments
             for j = 1:35 % Estimated maximal muscle moments
@@ -367,8 +398,12 @@ for leg = leg_list
                     M(j,:,k) = sum(b0)/sum(~b0 == 0); % Mean is case of biarticular muscle  
                 end
             end
-            J14 = sqrt(sum((f./M).^2,1) / n);
-
+%             J14 = sqrt(sum((f./M).^2,1) / n);
+            J14 = zeros(1, size(f, 3));
+            for k = 1 : size(f, 3)
+                J14 = cost_function14(f(:, :, k), M(:, :, k));
+            end
+            
             % Others
             % Different normalisation
             fnormalisedf0 = f./repmat(f0, [1 1 101]); % Maximal isometric force
@@ -376,12 +411,20 @@ for leg = leg_list
             stressactive = factive./repmat(pcsa, [1 1 101]);
             fnormalisedfmax = f./fmax; % Instantaneous maximal force 
             %
-            J15 = sqrt( sum(mass.*(0.5*factivenormalisedf0 + 0.5*stressactive.^2)) / n); % Metabolic energy-related
-            J16 = max((exp(3.48 + 0.169*r).* ...
-                (100*fnormalisedf0).^(-0.5 - 0.036*r)) ...
-                .^(-1)); % Minimum fatigue
-            J17 = - real(sum(sqrt(1-(fnormalisedfmax).^2),1)) / n; % Soft saturation
-            
+%             J15 = sqrt( sum(mass.*(0.5*factivenormalisedf0 + 0.5*stressactive.^2)) / n); % Metabolic energy-related
+%             J16 = max((exp(3.48 + 0.169*r).* ...
+%                 (100*fnormalisedf0).^(-0.5 - 0.036*r)) ...
+%                 .^(-1)); % Minimum fatigue
+%             J17 = - real(sum(sqrt(1-(fnormalisedfmax).^2),1)) / n; % Soft saturation
+            J15 = zeros(1, size(f, 3));
+            J16 = zeros(1, size(f, 3));
+            J17 = zeros(1, size(f, 3));
+            for k = 1 : size(f, 3)
+                J15 = cost_function15(f(:, :, k), fpassive(:, :, k), f0, pcsa, mass);
+                J16 = cost_function16(f(:, :, k), f0, r);
+                J17 = cost_function17(f(:, :, k), fmax(:, :, k));
+            end
+
             % Create cost function array
             J_arr = cat(1, J1, J2, J3, J4, J5, J6, J7, J8, J9, J10, J11, J12, J13, J14, J15, J16, J17);
 
