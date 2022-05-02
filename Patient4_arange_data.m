@@ -401,7 +401,7 @@ for leg = leg_list
 %             J14 = sqrt(sum((f./M).^2,1) / n);
             J14 = zeros(1, size(f, 3));
             for k = 1 : size(f, 3)
-                J14 = cost_function14(f(:, :, k), M(:, :, k));
+                J14(:, k) = cost_function14(f(:, :, k), M(:, :, k));
             end
             
             % Others
@@ -420,9 +420,9 @@ for leg = leg_list
             J16 = zeros(1, size(f, 3));
             J17 = zeros(1, size(f, 3));
             for k = 1 : size(f, 3)
-                J15 = cost_function15(f(:, :, k), fpassive(:, :, k), f0, pcsa, mass);
-                J16 = cost_function16(f(:, :, k), f0, r);
-                J17 = cost_function17(f(:, :, k), fmax(:, :, k));
+                J15(:, k) = cost_function15(f(:, :, k), fpassive(:, :, k), f0, pcsa, mass);
+                J16(:, k) = cost_function16(f(:, :, k), f0, r);
+                J17(:, k) = cost_function17(f(:, :, k), fmax(:, :, k));
             end
 
             % Create cost function array
