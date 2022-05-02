@@ -338,10 +338,10 @@ for leg = leg_list
 %             J2 = sqrt(sum(f.^2,1) / n); % At power 2
 %             J3 = (sum(f.^3,1) /n).^(1/3); % At power 3
 %             J4 = max(f);
-            J1 = zeros(1, size(f, 3));
-            J2 = zeros(1, size(f, 3));
-            J3 = zeros(1, size(f, 3));
-            J4 = zeros(1, size(f, 3));            
+            J1 = zeros(1, 1, size(f, 3));
+            J2 = zeros(1, 1, size(f, 3));
+            J3 = zeros(1, 1, size(f, 3));
+            J4 = zeros(1, 1, size(f, 3));            
             for k = 1 : size(f, 3)
                 J1(:, k) = cost_function1(f(:, :, k));
                 J2(:, k) = cost_function2(f(:, :, k));
@@ -354,10 +354,10 @@ for leg = leg_list
 %             J6 = sqrt(sum(a.^2,1) / n); % At power 2
 %             J7 = (sum(a.^3,1) / n).^(1/3); % At power 3
 %             J8 = max(a);
-            J5 = zeros(1, size(f, 3));
-            J6 = zeros(1, size(f, 3));
-            J7 = zeros(1, size(f, 3));
-            J8 = zeros(1, size(f, 3));    
+            J5 = zeros(1, 1, size(f, 3));
+            J6 = zeros(1, 1, size(f, 3));
+            J7 = zeros(1, 1, size(f, 3));
+            J8 = zeros(1, 1, size(f, 3));    
             for k = 1 : size(f, 3)
                 J5(:, k) = cost_function5(f(:, :, k), fmin(:, :, k), fmax(:, :, k));
                 J6(:, k) = cost_function6(f(:, :, k), fmin(:, :, k), fmax(:, :, k));
@@ -372,10 +372,10 @@ for leg = leg_list
 %             J10 = sqrt(sum(stress.^2,1) / n); % At power 2
 %             J11 = (sum(stress.^3,1) / n).^(1/3); % At power 3
 %             J12 = max(stress);
-            J9 = zeros(1, size(f, 3));
-            J10 = zeros(1, size(f, 3));
-            J11 = zeros(1, size(f, 3));
-            J12 = zeros(1, size(f, 3));
+            J9 = zeros(1, 1, size(f, 3));
+            J10 = zeros(1, 1, size(f, 3));
+            J11 = zeros(1, 1, size(f, 3));
+            J12 = zeros(1, 1, size(f, 3));
             for k = 1 : size(f, 3)
                 J9(:, k) = cost_function9(f(:, :, k), pcsa);
                 J10(:, k) = cost_function10(f(:, :, k), pcsa);
@@ -384,7 +384,7 @@ for leg = leg_list
             end
             % Sum of muscle powers
 %             J13 = sqrt(sum((f.*vmt).^2,1) / n); % At power 2
-            J13 = zeros(1, size(f, 3));
+            J13 = zeros(1, 1, size(f, 3));
             for k = 1 : size(f, 3)
                 J13(:, k) = cost_function13(f(:, :, k), vmt(:, :, k));
             end
@@ -399,7 +399,7 @@ for leg = leg_list
                 end
             end
 %             J14 = sqrt(sum((f./M).^2,1) / n);
-            J14 = zeros(1, size(f, 3));
+            J14 = zeros(1, 1, size(f, 3));
             for k = 1 : size(f, 3)
                 J14(:, k) = cost_function14(f(:, :, k), M(:, :, k));
             end
@@ -416,9 +416,9 @@ for leg = leg_list
 %                 (100*fnormalisedf0).^(-0.5 - 0.036*r)) ...
 %                 .^(-1)); % Minimum fatigue
 %             J17 = - real(sum(sqrt(1-(fnormalisedfmax).^2),1)) / n; % Soft saturation
-            J15 = zeros(1, size(f, 3));
-            J16 = zeros(1, size(f, 3));
-            J17 = zeros(1, size(f, 3));
+            J15 = zeros(1, 1, size(f, 3));
+            J16 = zeros(1, 1, size(f, 3));
+            J17 = zeros(1, 1, size(f, 3));
             for k = 1 : size(f, 3)
                 J15(:, k) = cost_function15(f(:, :, k), fpassive(:, :, k), f0, pcsa, mass);
                 J16(:, k) = cost_function16(f(:, :, k), f0, r);
