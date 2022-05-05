@@ -1,4 +1,4 @@
-function [alpha_opt, fval_opt] = IO_local_fmincon_search_normalized(alpha0, mesh_size, data, vars, model, sample_list, trial_list, speed_list, leg_list)
+function [alpha_opt, fval_opt] = IO_local_fmincon_search_normalized(alpha0, data, vars, model, sample_list, trial_list, speed_list, leg_list)
 %IO_LOCAL_SEARCH performs a local gradient-free search over the cost function
 %parametrization.
 %
@@ -10,6 +10,7 @@ fun = @(alpha) IO_inner_loop_normalized(alpha, data, vars, model, sample_list, t
 
 % Initial solution
 n = length(alpha0);
+alpha0 = reshape(alpha0, [], 1);
 
 % Linear constraints
 Aeq = ones(1, n);

@@ -35,9 +35,9 @@ alpha0(14) = 0.25;
 
 % Calculate RMSE
 tic
-[alpha, E] = IO_local_fmincon_search_normalized(alpha0, mesh_size, data, vars, model, sample_list, trial_list, speed_list, leg_list);
+[alpha, E] = IO_local_fmincon_search_normalized(alpha0, data, vars, model, sample_list, trial_list, speed_list, leg_list);
 toc
 
 suffix = datetimestr;
 
-save(sprintf('..\..\opti_results\normalized_local\normalized_local_fmincon_search-%s.mat', suffix))
+save(sprintf('..\\..\\opti_results\\normalized_local\\normalized_local_fmincon_search-%s.mat', suffix))
