@@ -11,7 +11,7 @@ load(data_dir);
 model.solver('ipopt');
 
 % Create weight vector
-alpha = zeros(16, 1);
+alpha = zeros(17, 1);
 alpha(2) = 1;
 
 % Perform IOC on these (To compare with RMSE found in test_workspace_do_1)
