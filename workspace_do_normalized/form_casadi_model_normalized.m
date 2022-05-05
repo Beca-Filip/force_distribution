@@ -1,4 +1,19 @@
-function [model, vars] = form_casadi_model_normalized()
+function [model, vars] = form_casadi_model_normalized(varargin)
+%FORM_CASADI_MODEL_NORMALIZED creates a casadi opti stack with cost
+%functions from the basis.
+%   
+%   [model, vars] = FORM_CASADI_MODEL_NORMALIZED()
+%   [model, vars] = FORM_CASADI_MODEL_NORMALIZED(cf_exclude)
+%
+%   Inputs:
+%   cf_exclude ~ contains the order of the cost functions to exclude
+
+% Treat inputs
+if ~isempty(varargin)
+   cf_exclude = varargin{1};
+else
+    cf_exclude = [];
+end
 
 % Create optimization problem instance
 model = casadi.Opti();
@@ -24,7 +39,7 @@ A = model.parameter(ne, n);
 b = model.parameter(ne);
 
 % Get all cost functins
-Jset = cost_function_set(f, fmin, fmax, pcsa, vmt, M, fpassive, f0, m, r);
+Jset = cost_function_set(f, fmin, fmax, pcsa, vmt, M, fpassive, f0, m, r, cf_exclude);
 
 % Normalize costs
 J_max = model.parameter(length(Jset));
@@ -36,15 +51,21 @@ end
 % Get cost function parametrization
 alpha = model.parameter(length(Jset));
 
-% Get cost functions and constraints
-J = cost_function_normalized(alpha, f, fmin, fmax, pcsa, vmt, M, fpassive, f0, m, r, J_min, J_max);
+% Get cost function
+J = zeros(1,1,'like',casadi.MX);
+for ii = 1 : length(Jset)
+    J = J+ alpha(ii) * Jset(ii);
+end
+% Get constraints
 h = eq_constraint_function(f, A, b);
 g = ineq_constraint_function(f, fmin, fmax);
+ceq = h == 0;
+c = g <= 0;
 
 % Add cost and constraints
 model.minimize(J);
-model.subject_to(h == 0);
-model.subject_to(g <= 0);
+model.subject_to(ceq);
+model.subject_to(c);
 
 % Set variables
 vars.variables.f = f;
@@ -68,5 +89,8 @@ vars.functions.J = J;
 vars.functions.Jset = Jset;
 vars.functions.h = h;
 vars.functions.g = g;
+vars.functions.ceq = ceq;
+vars.functions.c = c;
+vars.functions.cf_exclude = cf_exclude;
 
 end
