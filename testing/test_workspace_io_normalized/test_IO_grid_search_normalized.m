@@ -35,4 +35,4 @@ toc
 
 suffix = datetimestr;
 
-save(sprintf('..\..\opti_results\normalized_grid\normalized_grid_search-%s.mat', suffix))
+save(sprintf('..\\..\\opti_results\\normalized_grid\\normalized_grid_search-%s.mat', suffix))
