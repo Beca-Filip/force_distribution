@@ -24,7 +24,7 @@ end
 % Create an array of graphical objects
 h = gobjects(figrows, figcols);
 if ~isempty(h_ax)
-    h_ax = gobjects(figrows, figcols);
+    h_ax = cell(figrows, figcols);
 end
 
 % For each row and column
@@ -39,7 +39,7 @@ for ii = 1 : figrows
         end
         
         % Create current subplot
-        h_ax(ii, jj) = subplot(figrows, figcols, curr);
+        h_ax{ii, jj} = subplot(figrows, figcols, curr);
         % Hold
         hold on;
         
