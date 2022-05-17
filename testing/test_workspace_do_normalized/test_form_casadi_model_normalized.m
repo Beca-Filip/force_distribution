@@ -6,8 +6,10 @@ clc;
 data_dir = '..\..\Optimization Model Data\Patient4.mat';
 load(data_dir);
 
+% Add cost function exclusion
+cf_exclude = 17;
 % Create model
-[model, vars] = form_casadi_model_normalized();
+[model, vars] = form_casadi_model_normalized(cf_exclude);
 
 % Choose solver with options
 sol_opt= struct;
@@ -29,7 +31,7 @@ sample_list = 1:101;
 alpha = zeros(16, 1);
 alpha(1) = 1;
 
-%
+% Start test
 vals = [];
 for trial = trial_list
 for speed = speed_list
