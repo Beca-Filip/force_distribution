@@ -1,4 +1,4 @@
-function act = determine_active_inequalities_normalized(data, vars, model, sample, trial, speed, leg, tol)
+function act = determine_active_inequalities_normalized(data, vars, model, sample, trial, speed, leg, thresh)
 %DETERMINE_ACTIVE_INEQUALITIES_NORMALIZED determines the active inequalities
 %at a particular sample,trial,speed,leg quadruple of the data.
 
@@ -11,6 +11,6 @@ model = set_model_normalization(data, vars, model);
 g = model.debug.value(vars.functions.g, {vars.variables.f == data.f(:, :, sample, trial, speed, leg)});
 
 % Find active inequalities with desired tolerance
-act = find(g >= -tol);
+act = find(g >= thresh);
 
 end
