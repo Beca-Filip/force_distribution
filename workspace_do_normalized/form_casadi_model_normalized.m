@@ -1,6 +1,6 @@
 function [model, vars] = form_casadi_model_normalized(varargin)
 %FORM_CASADI_MODEL_NORMALIZED creates a casadi opti stack with cost
-%functions from the basis.
+%functions from the basis and integrating normalization.
 %   
 %   [model, vars] = FORM_CASADI_MODEL_NORMALIZED()
 %   [model, vars] = FORM_CASADI_MODEL_NORMALIZED(cf_exclude)
@@ -54,7 +54,7 @@ alpha = model.parameter(length(Jset));
 % Get cost function
 J = zeros(1,1,'like',casadi.MX);
 for ii = 1 : length(Jset)
-    J = J+ alpha(ii) * Jset(ii);
+    J = J + alpha(ii) * Jset(ii);
 end
 % Get constraints
 h = eq_constraint_function(f, A, b);

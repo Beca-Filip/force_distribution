@@ -6,8 +6,11 @@ clc;
 data_dir = '..\..\Optimization Model Data\Patient4.mat';
 load(data_dir);
 
+% Exclude cost function 17
+cf_exclude = 17;
+
 % Create model
-[model, vars] = form_casadi_model();
+[model, vars] = form_casadi_model(cf_exclude);
 model.solver('ipopt');
 
 % Create weight vector
