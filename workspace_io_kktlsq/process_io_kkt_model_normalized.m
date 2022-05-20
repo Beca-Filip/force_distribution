@@ -6,7 +6,7 @@ function modelio = process_io_kkt_model_normalized(modelio, aithresh)
 %   modelio = PROCESS_IO_KKT_MODEL_NORMALIZED(modelio, aithresh)
 %   aithresh ~ active inequality treshold
 
-% Determine active inequalities
+% Extract lists
 sample_list = modelio.sample_list;
 trial_list = modelio.trial_list;
 speed_list = modelio.speed_list;
@@ -118,19 +118,19 @@ for trial = trial_list
             for k = sample_list
                 
                 % Get indices for current cost function parameters
-                [ic, ir] = indexing_function(modelio, 'cf_parameters', k, trial, speed, leg);
+                [ir, ic] = indexing_function(modelio, 'cf_parameters', k, trial, speed, leg);
                 % Assign the value to the the matrix
-                modelio.regressor(ic, ir) = modelio.gradients_cf(:, :, cntsamples, cnttrials, cntspeeds, cntlegs);
+                modelio.regressor(ir, ic) = modelio.gradients_cf(:, :, cntsamples, cnttrials, cntspeeds, cntlegs);
                 
                 % Get indices for current equality constraint multipliers
-                [ic, ir] = indexing_function(modelio, 'ec_multipliers', k, trial, speed, leg);
+                [ir, ic] = indexing_function(modelio, 'ec_multipliers', k, trial, speed, leg);
                 % Assign the value to the the matrix
-                modelio.regressor(ic, ir) = modelio.gradients_ec(:, :, cntsamples, cnttrials, cntspeeds, cntlegs);
+                modelio.regressor(ir, ic) = modelio.gradients_ec(:, :, cntsamples, cnttrials, cntspeeds, cntlegs);
                 
                 % Get indices for current equality constraint multipliers
-                [ic, ir] = indexing_function(modelio, 'aic_multipliers', k, trial, speed, leg);
+                [ir, ic] = indexing_function(modelio, 'aic_multipliers', k, trial, speed, leg);
                 % Assign the value to the the matrix
-                modelio.regressor(ic, ir) = modelio.gradients_aic{cntsamples, cnttrials, cntspeeds, cntlegs};
+                modelio.regressor(ir, ic) = modelio.gradients_aic{cntsamples, cnttrials, cntspeeds, cntlegs};
                                 
                 % Augment sample counter
                 cntsamples = cntsamples + 1;
@@ -152,6 +152,7 @@ modelio.lower_bound = cat(1, zeros(modelio.num_cf, 1), -inf*ones(modelio.num_tot
 
 % Prealocate normalization vector for cf weights
 modelio.normalization_cf_Aeq = zeros(1, modelio.num_cols_regressor);
+modelio.normalization_cf_Aeq(1:modelio.num_cf) = 1;
 modelio.normalization_cf_beq = 1;
 
 end
