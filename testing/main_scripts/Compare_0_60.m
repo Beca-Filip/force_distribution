@@ -92,9 +92,9 @@ opts.title = @(n) {{sprintf('Muscle %d: RMSE$_{\\rm KKT}$ $= %.2f$N', n, ...
                     rmse(data.f(n,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list), data_pred_KKT.f(n,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list)));...
                     sprintf('RMSE$_{\\rm Bilev}$ $= %.2f$N', ...
                     rmse(data.f(n,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list), data_pred_bilev.f(n,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list)))},...
-                    'interpreter', 'latex', 'FontSize', 15};
-opts.xlabel = @(n) {'\% Gait Cycle', 'interpreter', 'latex', 'FontSize', 12};
-opts.ylabel = @(n) {sprintf('$f_{%d}(t)$ [N]', n), 'interpreter', 'latex', 'FontSize', 13};
+                    'interpreter', 'latex', 'FontSize', 12};
+opts.xlabel = @(n) {ternary_operator(n>29, '\% Gait Cycle', []), 'interpreter', 'latex', 'FontSize', 12};
+opts.ylabel = @(n) {sprintf('$f_{%d}(t)$ [N]', n), 'interpreter', 'latex', 'FontSize', 12};
 % Plot itself
 figure('WindowState', 'Maximized');
 % Data
@@ -112,5 +112,5 @@ sgtitle(sprintf('Overall RMSE$_{\\rm KKT}$ = %.4f [N], RMSE$_{\\rm Bilev}$ = %.4
                 rmse(data.f(:,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list), data_pred_bilev.f(:,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list)) ...
                 ), 'interpreter', 'latex')
 % Legend
-lh = legend('$m_{\rm data} \pm 3 \sigma_{\rm data}$', '$m_{\rm data}$', '$m_{\rm KKT} \pm 3 \sigma_{\rm KKT}$', '$m_{\rm KKT}$', '$m_{\rm Bilev} \pm 3 \sigma_{\rm Bilev}$', '$m_{\rm Bilev}$', 'interpreter', 'latex', 'FontSize', 13);
+lh = legend('$m_{\rm data} \pm 3 \sigma_{\rm data}$', '$m_{\rm data}$', '$m_{\rm KKT} \pm 3 \sigma_{\rm KKT}$', '$m_{\rm KKT}$', '$m_{\rm Bilev} \pm 3 \sigma_{\rm Bilev}$', '$m_{\rm Bilev}$', 'interpreter', 'latex', 'FontSize', 12);
 title(lh, 'Legend');
