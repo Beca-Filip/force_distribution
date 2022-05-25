@@ -8,7 +8,7 @@ load(bilevel_results_dir);
 
 % Find the cost function parametrization producing least error
 [~, min_ind] = min(E);
-alpha_bilev = alpha(min_ind);
+alpha_bilev = alpha(min_ind, :);
 
 clearvars -except alpha_bilev
 
@@ -60,7 +60,7 @@ solio = solve_io_kkt_model_normalized(modelio);
 doc_trial_list = 1:10;
 doc_speed_list = 5;
 doc_leg_list = 1;
-doc_sample_list = 1:1:61;
+doc_sample_list = 1:4:61;
 
 % Redo-doc
 Fout_KKT = DO_subroutine_normalized(solio.alpha, data, vars, model, doc_sample_list, doc_trial_list, doc_speed_list, doc_leg_list);
