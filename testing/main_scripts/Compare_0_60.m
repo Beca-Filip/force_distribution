@@ -3,7 +3,7 @@ clear all;
 clc;
 
 % Bilevel results directory
-bilevel_results_dir = '..\..\bilevel_optim_results\normalized_grid_search_5_partitions.mat';
+bilevel_results_dir = '..\..\bilevel_optim_results\normalized_grid_search_5_partitions_0_60.mat';
 load(bilevel_results_dir);
 
 % Find the cost function parametrization producing least error
