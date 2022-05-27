@@ -20,7 +20,7 @@ b = [];
 
 % Bound constraints
 lb = zeros(n, 1);
-ub = inf*ones(n, 1);
+ub = [];
 
 % Nonlinear constraints
 nonlcon = [];
@@ -32,10 +32,10 @@ fmc_options = optimoptions(@fmincon, ...
              'MaxFunctionEvaluations', 2e4, ...
              'MaxIterations', 1e3, ...
              'PlotFcn', {'optimplotx', 'optimplotfval', 'optimplotconstrviolation', 'optimplotfirstorderopt'}, ...
-             'StepTolerance', 1e-4...
+             'StepTolerance', 1e-6...
          );
          
-% Call pattern search
+% Call fmincon
 [alpha_opt, fval_opt, ef_opt, out_opt] = fmincon(fun,alpha0,A,b,Aeq,beq,lb,ub,nonlcon,fmc_options);
 
 end
