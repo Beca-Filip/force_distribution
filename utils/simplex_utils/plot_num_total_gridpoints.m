@@ -36,6 +36,11 @@ else
     h = plot(pr, log10(v), 'Marker', 'o');
 end
 
+% Show exact number
+for ii = 1 : length(pr)
+   text(pr(ii), log10(v(ii)), sprintf('%d', v(ii))); 
+end
+
 % Some aesthetics
 xlabel("Partition Rank");
 ylabel("# Grid Points [log_{10}]");
