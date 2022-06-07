@@ -4,7 +4,8 @@ clc;
 
 % Data directory and loading
 warning('off')
-name = 'diff_normalized_grid_search-5-partitions-0-60';
+% name = 'diff_normalized_grid_search-5-partitions-0-60';
+name = 'diff_normalized_grid_search-15-functions-5-partitions-0-60';
 data_dir = strcat('..\..\bilevel_optim_results\diff_normalized_grid_search\', name, '.mat');
 load(data_dir);
 warning('on')
@@ -49,5 +50,6 @@ for ii = 1 : 4
     alpha_loc(ii, :) = alpha_opt;
 end
 
-save_name = 'local-0-60';
+% save_name = 'local-0-60';
+save_name = 'local-15-functions-0-60';
 save(strcat('..\..\bilevel_optim_results\diff_normalized_grid_search\', save_name, '.mat'));
