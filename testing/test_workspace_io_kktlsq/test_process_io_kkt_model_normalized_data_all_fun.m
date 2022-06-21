@@ -7,7 +7,7 @@ data_dir = '..\..\Optimization Model Data\Patient4.mat';
 load(data_dir);
 
 % Exclude cost function 17
-cf_exclude = 17;
+cf_exclude = [16, 17];
 
 % Modify normalization
 data.J_min(:) = 0;
@@ -21,7 +21,8 @@ model.solver('ipopt');
 trial_list = 1:10;
 speed_list = 5;
 leg_list = 1;
-sample_list = 1:4:61;
+% sample_list = 1:4:61;
+sample_list = 61:4:101;
 
 % Active inequality thresh
 aithresh = -1e-5;
@@ -83,7 +84,10 @@ patch_vector_quantities_opts(stdpatch_t_pred, squeeze(stdpatch_f_pred), [], [], 
 plot_vector_quantities_opts(doc_sample_list-1, squeeze(mean_f_pred), [], [], 'r', 'LineWidth', 2);
 
 % Overall title
-sgtitle(sprintf('Overall RMSE = %.4f [N]', rmse(data.f(:,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list), data_pred.f(:,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list))), 'interpreter', 'latex')
+sgtitle({...
+         sprintf('Overall RMSE = %.4f [N]', rmse(data.f(:,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list), data_pred.f(:,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list)));...
+         sprintf('Overall CC = %.4f', corr2(reshape(data.f(:,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list), [], 1), reshape(data_pred.f(:,:,doc_sample_list,doc_trial_list,doc_speed_list,doc_leg_list), [], 1)))...
+         }, 'interpreter', 'latex')
 % Legend
 lh = legend('$m_{\rm data} \pm 3 \sigma_{\rm data}$', '$m_{\rm data}$', '$m_{\rm pred} \pm 3 \sigma_{\rm pred}$', '$m_{\rm pred}$', 'interpreter', 'latex', 'FontSize', 13);
 title(lh, 'Legend');
