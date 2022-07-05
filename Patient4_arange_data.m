@@ -37,12 +37,16 @@ data.description = strvcat(" ",...
 data.f = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 data.fmin = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 data.fmax = zeros(n, 1, T, ntrials, nspeeds, nlegs);
+data.lmt = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 data.vmt = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 data.M = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 data.fpassive = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 % Dimensionality same as moment
 data.A = zeros(ne, n, T, ntrials, nspeeds, nlegs);
 data.b = zeros(ne, 1, T, ntrials, nspeeds, nlegs);
+data.drdq = zeros(ne, n, T, ntrials, nspeeds, nlegs);
+data.Kref = zeros(ne, 1, T, ntrials, nspeeds, nlegs);
+data.K = zeros(ne, 1, T, ntrials, nspeeds, nlegs);
 
 % Time-constant data
 % Dimensionality same as force
@@ -50,6 +54,9 @@ data.pcsa = zeros(n, 1, ntrials, nspeeds, nlegs);
 data.f0 = zeros(n, 1, ntrials, nspeeds, nlegs);
 data.mass = zeros(n, 1, ntrials, nspeeds, nlegs);
 data.r = zeros(n, 1, ntrials, nspeeds, nlegs);
+data.lmo = zeros(n, 1, ntrials, nspeeds, nlegs);
+data.lts = zeros(n, 1, ntrials, nspeeds, nlegs);
+data.penation = zeros(n, 1, ntrials, nspeeds, nlegs);
 
 % Cost function normalization
 data.J_max = -inf*ones(1, 17);
@@ -74,7 +81,10 @@ for leg = leg_list
                 HipFE_drdq HipAA_drdq Knee_drdq Ankle_drdq Subtalar_drdq ...
                 HipFE_dFdl ...
                 n ne T...
-                leg_list speed_list trial_list leg speed trial data
+                leg_list speed_list trial_list leg speed trial data ...
+                Jstiffness_HipFE Jstiffness_HipAA Jstiffness_Knee ...
+                Jstiffness_Ankle Jstiffness_Subtalar ...
+                JAngles
             % Same results in HipFE_dFdl, HipAA_dFdl, Knee_dFdl, Ankle_dFdl, or Subtalar_dFdl
             %% Load gait analysis data
             load('results_patient4_v22f_optModel5_45678_610sigma_new.mat')
@@ -197,6 +207,13 @@ for leg = leg_list
 
             % Muscle volume (in m3)
             volume = pcsa.*lmoOpt'; % PCSA * optimal muscle fibre length
+            
+            % Optimal length
+            lmo = lmoOpt';
+            % Slack length
+            lts = ltsOpt';
+            % Penation angle
+            penation = alpha';
 
             % Muscle mass (in kg)
             % Unchida et al. (2016)
@@ -434,12 +451,14 @@ for leg = leg_list
             data.f(:, :, :, trial, speed-3, leg) = f;
             data.fmin(:, :, :, trial, speed-3, leg) = fmin;
             data.fmax(:, :, :, trial, speed-3, leg) = fmax;
+            data.lmt(:, :, :, trial, speed-3, leg) = lmt;
             data.vmt(:, :, :, trial, speed-3, leg) = vmt;
             data.M(:, :, :, trial, speed-3, leg) = M;
             data.fpassive(:, :, :, trial, speed-3, leg) = fpassive;
             % Dimensionality same as moment
             data.A(:, :, :, trial, speed-3, leg) = A;
             data.b(:, :, :, trial, speed-3, leg) = b2;
+            data.drdq(:, :, :, trial, speed-3, leg) = drdq;
 
             % Time-constant data
             % Dimensionality same as force
@@ -447,13 +466,47 @@ for leg = leg_list
             data.f0(:, :, trial, speed-3, leg) = f0;
             data.mass(:, :, trial, speed-3, leg) = mass;
             data.r(:, :, trial, speed-3, leg) = r;
+            data.lmo(:, :, trial, speed-3, leg) = lmo;
+            data.lts(:, :, trial, speed-3, leg) = lts;
+            data.penation(:, :, trial, speed-3, leg) = penation;
             
             
             % Cost function data            
             data.J_max = max(data.J_max, max(J_arr, [], 3).');
             data.J_min = min(data.J_min, min(J_arr, [], 3).');
             
-
+%             % Computation of dfdl from activation
+%             for j = 1:35
+% 
+%                 % Muscle parameters
+%                 Params.Fmax_sym = f0(j);
+%                 Params.lmo_sym = lmo(j);
+%                 Params.lts_sym = lts(j);
+%                 Params.alphaAngle = penation(j);
+%                 Params.VmaxFactor_sym = 10;
+%                 Params.Lmt_sym = squeeze(lmt(j,:,:));
+%                 Params.Vmt_sym = squeeze(vmt(j,:,:));
+%                 Params.a_sym = squeeze(a(j,:,:));
+%                 % Computation of dfdl based on symbolic derivaties
+%                 dfdl_sym(j,1,1:101) = permute(dfdlcal_v2(Params),[1,3,2]); 
+% 
+%             end
+% 
+%             %
+%             % Stiffness estimated with the time derivative of force
+%             for k = 1:101
+%                 K_sym(:,:,k) = -(drdq(:,:,k) * f(:,:,k) - ...
+%                     A(:,:,k).^2 * (dfdl_sym(:,:,k)));
+%             end
+            % Stiffness from the dataset
+            K = [permute(Jstiffness_HipFE(1,(cycle-1)*101+1:cycle*101),[1,3,2]); ...
+                permute(Jstiffness_HipAA(1,(cycle-1)*101+1:cycle*101),[1,3,2]); ...
+                permute(Jstiffness_Knee(1,(cycle-1)*101+1:cycle*101),[1,3,2]); ...
+                permute(Jstiffness_Ankle(1,(cycle-1)*101+1:cycle*101),[1,3,2]); ...
+                permute(Jstiffness_Subtalar(1,(cycle-1)*101+1:cycle*101),[1,3,2])];
+            
+            data.K(:,:,:, trial, speed-3, leg) = K;
+            fprintf('%d %d %d\n',trial,speed,leg);
         end
     end
 end
