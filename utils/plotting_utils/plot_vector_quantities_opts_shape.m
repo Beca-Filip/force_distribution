@@ -1,32 +1,61 @@
-function [h_ax, h] = plot_vector_quantities_opts(t, f, h_ax, opts, varargin)
-%PLOT_VECTOR_QUANTITIES_OPTS automatically determines the size of the subgrid
-%in which to plot a vector trajectory, and performs the plotting, while
-%allowing some freedom with options.
+function [h_ax, h] = plot_vector_quantities_opts_shape(t, f, h_ax, opts, shape, varargin)
+%PLOT_VECTOR_QUANTITIES_OPTS_SHAPE plots vector trajectories within a
+%subplot grid.
 %
+%The size of the subplot grid is either imposed or automatically determined
+%and the plotting performed, while allowing some freedom with plotting 
+%options.
 %   
 %   Takes in an options structure for axes parameters (title, xlabel,
 %   ylabel, zlabel) where fields are named with the function they're
-%   supposed to call and the field value is a function which takes in the
+%   supposed to call, and the field value is a function which takes in the
 %   order of the trajectory to plot and returns a cell array with function
 %   arguments
 %   e.g. opts.title = @(n) {sprintf('trajectory %d', n)}
 %
-%   Takes in plot options which are common to all plots.
+%   Takes in plot options which are common to all plots (automatically
+%   determines shape of plot because shape = []).
 %   e.g.
-%   [h_ax, h] = PLOT_VECTOR_QUANTITIES(t, f, h_ax, opts, 'LineWidth', 2);
+%   [h_ax, h] = PLOT_VECTOR_QUANTITIES(t, f, h_ax, opts, [], 'LineWidth', 2);
+%
+%   Takes in predetermined shape size
+%   e.g.
+%   shape = [1, 5];
+%   [h_ax, h] = PLOT_VECTOR_QUANTITIES(t, f, h_ax, opts, [1, 5], 'LineWidth', 2);
 
 % Size of quantities to plot 
 % n - number of quantities
 % N - number of samples per quantity
 [n, N] = size(f);
 
-% Round
-figrows = ceil(sqrt(n));
-figcols = ceil(sqrt(n));
+% If shape is given
+if ~isempty(shape)
+    
+    % Check if its incorrect
+    if ~isnumeric(shape) || numel(shape)~=2 || any(shape <= 0) || any(shape ~= round(shape))
+        error('shape parameter must be a two-element vector containing positive integers.');
+    end
+    % Check if its not big enough
+    if prod(shape) < n
+        error('shape must be big enough to contain all vector trajectories.');
+    end
+    
+    
+    % Set the number of subgrid rows and columns
+    figrows = shape(1);
+    figcols = shape(2);
+    
+% Otherwise automatically determine subgrid size
+else
 
-% Try to reduce number of columns
-if (figcols-1) * figrows >= n
-    figcols = figcols - 1;
+    % Round
+    figrows = ceil(sqrt(n));
+    figcols = ceil(sqrt(n));
+
+    % Try to reduce number of columns
+    if (figcols-1) * figrows >= n
+        figcols = figcols - 1;
+    end
 end
 
 % Create an array of graphical objects

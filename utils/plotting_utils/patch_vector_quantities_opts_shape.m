@@ -1,5 +1,5 @@
-function [h_ax, h] = plot_vector_quantities_opts(t, f, h_ax, opts, varargin)
-%PLOT_VECTOR_QUANTITIES_OPTS automatically determines the size of the subgrid
+function [h_ax, h] = patch_vector_quantities_opts_shape(t, f, h_ax, opts, pcol, shape, varargin)
+%PATCH_VECTOR_QUANTITIES_OPTS automatically determines the size of the subgrid
 %in which to plot a vector trajectory, and performs the plotting, while
 %allowing some freedom with options.
 %
@@ -20,13 +20,34 @@ function [h_ax, h] = plot_vector_quantities_opts(t, f, h_ax, opts, varargin)
 % N - number of samples per quantity
 [n, N] = size(f);
 
-% Round
-figrows = ceil(sqrt(n));
-figcols = ceil(sqrt(n));
+% If shape is given
+if ~isempty(shape)
+    
+    % Check if its incorrect
+    if ~isnumeric(shape) || numel(shape)~=2 || any(shape <= 0) || any(shape ~= round(shape))
+        error('shape parameter must be a two-element vector containing positive integers.');
+    end
+    % Check if its not big enough
+    if prod(shape) < n
+        error('shape must be big enough to contain all vector trajectories.');
+    end
+    
+    
+    % Set the number of subgrid rows and columns
+    figrows = shape(1);
+    figcols = shape(2);
+    
+% Otherwise automatically determine subgrid size
+else
 
-% Try to reduce number of columns
-if (figcols-1) * figrows >= n
-    figcols = figcols - 1;
+    % Round
+    figrows = ceil(sqrt(n));
+    figcols = ceil(sqrt(n));
+
+    % Try to reduce number of columns
+    if (figcols-1) * figrows >= n
+        figcols = figcols - 1;
+    end
 end
 
 % Create an array of graphical objects
@@ -62,12 +83,13 @@ for ii = 1 : figrows
         
         % If arguments are passed plot with them
         if ~isempty(varargin)
-            h(ii, jj) = plot(t, f(curr, :), varargin{:});
+            
+            h(ii, jj) = patch(t, f(curr, :), pcol, varargin{:});
             
         % If not dont
         else
            
-            h(ii, jj) = plot(t, f(curr, :));
+            h(ii, jj) = patch(t, f(curr, :), pcol);
             
         end
         
