@@ -204,7 +204,6 @@ for j = 1:35
     end
 end
 
-
 %% Cost functions
 
 % Sum of musculo-tendon forces
