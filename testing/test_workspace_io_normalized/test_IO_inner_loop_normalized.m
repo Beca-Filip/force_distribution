@@ -7,7 +7,8 @@ data_dir = '..\..\Optimization Model Data\Patient4.mat';
 load(data_dir);
 
 % Create model
-[model, vars] = form_casadi_model_normalized();
+cf_exclude = 17;
+[model, vars] = form_casadi_model_normalized(cf_exclude);
 model.solver('ipopt');
 
 % Create weight vector
