@@ -40,7 +40,8 @@ tic
 [E, alpha] = IO_grid_search_normalized(Ngrid, data, vars, model, sample_list, trial_list, speed_list, leg_list);
 toc
 
+prepresuffix = sprintf('Ngrid_%d', Ngrid);
 presuffix = sprintf('leg_%d_speed_%d_', leg_list, speed_list);
 suffix = datetimestr;
 
-save(sprintf('..\\..\\opti_results\\job_patient5\\diffnorm_gs_%s-%s.mat', presuffix, suffix))
+save(sprintf('..\\..\\opti_results\\job_patient5\\diffnorm_gs_%s_%s_%s.mat', prepresuffix, presuffix, suffix))
