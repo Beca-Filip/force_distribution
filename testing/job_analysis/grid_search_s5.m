@@ -26,11 +26,12 @@ sol_opt.ipopt.check_derivatives_for_naninf = 'yes';
 sol_opt.regularity_check = true;
 model.solver('ipopt', sol_opt);
 
-% Perform IOC on these (To compare with RMSE found in test_workspace_do_1)
+% Perform IOC on these (To compare with RMSE found in test_workspace_do_1)z
 trial_list = 1:10;
 speed_list = 5;
-leg_list = 1;
+leg_list = 2;
 sample_list = 1:4:61;
+% sample_list = 61:4:101;
 
 % Get number of grid points
 Ngrid = 3060;

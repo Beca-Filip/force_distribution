@@ -1,0 +1,24 @@
+Error using casadi.Opti/solve (line 253)
+Error in Opti::solve [OptiNode] at
+.../casadi/core/optistack.cpp:159:
+.../casadi/core/optistack_internal.cpp:999: Assertion
+"return_success(accept_limit)" failed:
+Solver failed. You may use opti.debug.value to investigate
+the latest values of variables. return_status is
+'NonIpopt_Exception_Thrown'
+
+Error in DO_subroutine_normalized (line 46)
+                sol = model.solve();
+
+Error in IO_inner_loop_normalized (line 11)
+Fout = DO_subroutine_normalized(alpha, data, vars, model,
+sample_list, trial_list, speed_list, leg_list);
+
+Error in IO_grid_search_normalized (line 26)
+    err(ii) = IO_inner_loop_normalized(alpha(ii, :).', data,
+    vars, model, sample_list, trial_list, speed_list,
+    leg_list);
+
+Error in grid_search_s5 (line 41)
+[E, alpha] = IO_grid_search_normalized(Ngrid, data, vars,
+model, sample_list, trial_list, speed_list, leg_list);
