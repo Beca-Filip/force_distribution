@@ -7,7 +7,7 @@ data_dir = '..\..\Optimization Model Data\Patient4.mat';
 load(data_dir);
 
 % Exclude cf
-cf_exclude = [17];
+cf_exclude = [16, 17];
 
 % Create model
 [model, vars] = form_casadi_model_normalized(cf_exclude);
@@ -29,12 +29,12 @@ leg_list = 1;
 sample_list = 1:4:61;
 
 % Get number of grid points
-Ngrid = 16;
+Ngrid = 3060;
 
 % Calculate RMSE
 tic
 [E, alpha] = IO_grid_search_normalized(Ngrid, data, vars, model, sample_list, trial_list, speed_list, leg_list);
-tocgit sta
+toc
 
 suffix = datetimestr;
 
