@@ -16,8 +16,8 @@ for itr = 1 : length(trial_list)
     for isp = 1 : length(speed_list)
         for ile = 1 : length(leg_list)
             % For each muscle
-            for mm = 1 : size(data.f, 1)                
-                E(mm, itr, isp, ile) = rmse(data.f(mm, :, :, trial_list(itr), speed_list(isp), leg_list(ile)), Fout(mm, :, :, itr, isp, ile));
+            for mm = 1 : size(data.f, 1)
+                E(mm, itr, isp, ile) = rmse(data.f(mm, :, sample_list, trial_list(itr), speed_list(isp), leg_list(ile)), Fout(mm, :, :, itr, isp, ile));
             end
         end
     end
