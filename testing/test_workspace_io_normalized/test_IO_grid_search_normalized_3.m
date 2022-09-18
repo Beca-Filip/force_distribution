@@ -26,7 +26,7 @@ model.solver('ipopt', sol_opt);
 trial_list = 1:10;
 speed_list = 5;
 leg_list = 1;
-sample_list = 1:4:61;
+sample_list = 1:4:101;
 
 % Get number of grid points
 Ngrid = 3060;
@@ -38,4 +38,4 @@ toc
 
 suffix = datetimestr;
 
-save(sprintf('..\\..\\opti_results\\normalized_grid\\stance_normalized_grid_search-%s.mat', suffix))
+save(sprintf('..\\..\\opti_results\\normalized_grid\\cycle_normalized_grid_search-%s.mat', suffix))

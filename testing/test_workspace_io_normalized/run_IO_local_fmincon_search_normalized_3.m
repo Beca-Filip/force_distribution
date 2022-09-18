@@ -4,7 +4,7 @@ clc;
 
 % Data directory and loading
 warning('off')
-name = 'stance_normalized_grid_search-2022.09.16-17.34';
+name = 'cycle_normalized_grid_search-2022.09.16-19.03';
 data_dir = strcat('..\..\opti_results\normalized_grid\', name, '.mat');
 load(data_dir);
 warning('on')

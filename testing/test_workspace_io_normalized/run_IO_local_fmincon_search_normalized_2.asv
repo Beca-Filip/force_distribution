@@ -4,7 +4,7 @@ clc;
 
 % Data directory and loading
 warning('off')
-name = 'stance_normalized_grid_search-2022.09.16-17.34';
+name = 'swing_normalized_grid_search-2022.09.16-16.51';
 data_dir = strcat('..\..\opti_results\normalized_grid\', name, '.mat');
 load(data_dir);
 warning('on')
@@ -15,11 +15,9 @@ if ~exist(out_dir, 'dir')
     mkdir(out_dir);
 end
 
-% CF exclude
-cf_exclude = [16, 17];
-
+% C
 % Create model
-[model, vars] = form_casadi_model_normalized(cf_exclude);
+[model, vars] = form_casadi_model_normalized();
 
 % Choose solver with options
 sol_opt= struct;
