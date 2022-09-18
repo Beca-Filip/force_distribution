@@ -73,3 +73,5 @@ end
 % Save
 name_curr = 'all-iterations.mat';
 save_path = strcat(out_dir, name_curr);
+%%
+save(save_path);
