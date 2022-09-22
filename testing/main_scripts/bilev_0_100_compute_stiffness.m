@@ -76,6 +76,7 @@ opts.xlabel = @(n) {ternary_operator(n>2, '\% Gait Cycle', []), 'interpreter', '
 % opts.ylabel = @(n) {sprintf('$K_{%d}(t)$ [$\\frac{\\rm Nm}{\\rm rad}$]', n), 'interpreter', 'latex', 'FontSize', 12};
 opts.ylabel = @(n) {sprintf('$K_{%d}(t)$ [${\\rm Nm.rad^{-1}}$]', n), 'interpreter', 'latex', 'FontSize', 12};
 opts.xline = @(n) {60, 'r--', 'LineWidth', 2, 'HandleVisibility', 'Off'};
+opts.xlim = @(n) {[0, 100]};
 % 
 % Plot itself
 % figure('WindowState', 'Maximized');
