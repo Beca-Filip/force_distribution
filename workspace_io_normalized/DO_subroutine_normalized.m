@@ -43,6 +43,7 @@ for trial = trial_list
                 model = set_model_normalization(data, vars, model);
 
                 % Optimize
+%                 fprintf("(%d, %d, %d, %d)\n", k, trial, speed, leg);
                 sol = model.solve();
 
                 % Take the solution forces
