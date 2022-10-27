@@ -3,7 +3,7 @@ clear all;
 clc;
 
 % Data directory and loading
-data_dir = '..\..\Optimization Model Data\Patient4.mat';
+data_dir = '..\..\Optimization Model Data\Filtered_Patient4.mat';
 load(data_dir);
 
 % Modify normalization

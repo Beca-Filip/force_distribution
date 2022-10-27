@@ -3,7 +3,7 @@ clear all;
 clc;
 
 % Data directory and loading
-data_dir = '..\..\Optimization Model Data\Patient5.mat';
+data_dir = '..\..\Optimization Model Data\Filtered_Patient5.mat';
 load(data_dir);
 
 % Modify normalization
@@ -24,6 +24,7 @@ sol_opt.verbose = 0;
 sol_opt.ipopt.sb ='yes';
 sol_opt.ipopt.check_derivatives_for_naninf = 'yes';
 sol_opt.regularity_check = true;
+sol_opt.ipopt.max_iter = 1e4;
 model.solver('ipopt', sol_opt);
 
 % Perform IOC on these (To compare with RMSE found in test_workspace_do_1)z
