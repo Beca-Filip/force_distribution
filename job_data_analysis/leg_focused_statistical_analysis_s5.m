@@ -94,6 +94,6 @@ for speed = speed_list
         if ~exist("graphs", "dir")
            mkdir('graphs/') 
         end
-        exportgraphics(sprintf("graphs/subject5_speed%d_speed%dvs%d.pdf", speed, leg_list),'contenttype','vector');
+        exportgraphics(gcf, sprintf("graphs/subject5_speed%d_speed%dvs%d.pdf", speed, leg_list),'contenttype','vector');
     end
 end
