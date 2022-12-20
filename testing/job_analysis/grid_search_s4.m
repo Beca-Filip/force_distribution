@@ -28,7 +28,7 @@ model.solver('ipopt', sol_opt);
 
 % Perform IOC on these (To compare with RMSE found in test_workspace_do_1)
 trial_list = 1:10;
-speed_list = 5;
+speed_list = 3;
 leg_list = 2;
 % sample_list = 1:4:61;
 sample_list = 61:4:101;
@@ -41,8 +41,17 @@ tic
 [E, alpha] = IO_grid_search_normalized(Ngrid, data, vars, model, sample_list, trial_list, speed_list, leg_list);
 toc
 
+% Determine phase
+if isequal(sample_list, 1:4:61)
+    phase = '1';
+elseif isequal(sample_list, 61:4:101)
+    phase = '2';
+else
+    phase = 'na';
+end
+
 prepresuffix = sprintf('Ngrid_%d', Ngrid);
-presuffix = sprintf('leg_%d_speed_%d_', leg_list, speed_list);
+presuffix = sprintf('leg_%d_speed_%d_phase_%s_', leg_list, speed_list, phase);
 suffix = datetimestr;
 
 save(sprintf('..\\..\\opti_results\\job_patient4\\diffnorm_gs_%s_%s_%s.mat', prepresuffix, presuffix, suffix))
