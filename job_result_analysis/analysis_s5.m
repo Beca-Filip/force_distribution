@@ -23,7 +23,7 @@ sol_opt.regularity_check = true;
 model.solver('ipopt', sol_opt);
 
 % Results dir
-job_results_dir = "..\bilevel_optim_results\job_local_search\patient4";
+job_results_dir = "..\bilevel_optim_results\job_local_search\patient5";
 results = job_load_results(job_results_dir);
 
 data_ioc = make_predictions(data, results, model, vars);
