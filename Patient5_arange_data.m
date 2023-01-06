@@ -7,8 +7,8 @@ clc
 % In original script
 % trial = 5; % 1 to 10 (per speed)
 % leg = 1; % 1 contralateral (left-side) leg / 2 hemiparetic (right-side) leg
-% speed = 8; % 4 to 8 (0.4 - 0.8 m/s)
-% cycle = (leg-1)*50 + (speed-4)*10 + trial; % Corresponding cycle in results
+% speed = 5; % 2 to 6 (0.25 to 0.65 m/s).
+% cycle = (leg-1)*50 + (speed-2)*10 + trial; % Corresponding cycle in results
 
 % Data number of instances
 ntrials = 10;
