@@ -42,6 +42,7 @@ data.vmt = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 data.M = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 data.fpassive = zeros(n, 1, T, ntrials, nspeeds, nlegs);
 % Dimensionality same as moment
+data.A_orig = zeros(ne, n, T, ntrials, nspeeds, nlegs);
 data.A = zeros(ne, n, T, ntrials, nspeeds, nlegs);
 data.b = zeros(ne, 1, T, ntrials, nspeeds, nlegs);
 data.drdq = zeros(ne, n, T, ntrials, nspeeds, nlegs);
@@ -57,6 +58,10 @@ data.r = zeros(n, 1, ntrials, nspeeds, nlegs);
 data.lmo = zeros(n, 1, ntrials, nspeeds, nlegs);
 data.lts = zeros(n, 1, ntrials, nspeeds, nlegs);
 data.penation = zeros(n, 1, ntrials, nspeeds, nlegs);
+
+% Dimensionality one
+data.foot_off_index_m = zeros(1, 1, ntrials, nspeeds, nlegs); % Computed by moment
+data.foot_off_index_a = zeros(1, 1, ntrials, nspeeds, nlegs); % Computed by angle
 
 % Cost function normalization
 data.J_max = -inf*ones(1, 17);
@@ -79,16 +84,20 @@ for leg = leg_list
             % All variables are cleared except the ones needed to compute joint stiffness
             clearvars -except cycle ...
                 HipFE_drdq HipAA_drdq Knee_drdq Ankle_drdq Subtalar_drdq ...
-                HipFE_dFdl ...
+                HipFE_dFdl JAngles alpha...
                 n ne T...
-                leg_list speed_list trial_list leg speed trial data ...
                 Jstiffness_HipFE Jstiffness_HipAA Jstiffness_Knee ...
                 Jstiffness_Ankle Jstiffness_Subtalar ...
-                JAngles
+                leg_list speed_list trial_list leg speed trial data ...                
             % Same results in HipFE_dFdl, HipAA_dFdl, Knee_dFdl, Ankle_dFdl, or Subtalar_dFdl
             %% Load gait analysis data
-            load('results_patient5_v22f_optModel5_23456_610sigma_new.mat')
+            vars = who('-file','results_patient5_v22f_optModel5_23456_610sigma_new.mat');
+            vars_to_load = setdiff(vars, 'JAngles');
+            load('results_patient5_v22f_optModel5_23456_610sigma_new.mat', vars_to_load{:});
 
+            % Joint angles
+            theta = JAngles((cycle-1)*101+1:cycle*101,[1:5]);
+            
             % Joint moments
             b(:,1) = IDloads(:,cycle,1); % Hip Flexion / Extension
             b(:,2) = IDloads(:,cycle,2); % Hip Adduction / Abduction
@@ -133,7 +142,7 @@ for leg = leg_list
                 permute(AnkleMA(:,cycle,:), [2,3,1]); ...
                 permute(SubtalarMA(:,cycle,:), [2,3,1])];
 
-            % Musculo-tendon force
+            % Muscle force
             f = permute(muscleForce(:,cycle,:), [3,2,1]);
 
             % Muscle passive force
@@ -144,7 +153,8 @@ for leg = leg_list
 
             % Estimated moments from calibrated EMG
             for k = 1:101 % All frames (heel strike to heel strike)
-                b2(:,:,k) = A(:,:,k)*f(:,:,k);
+%                 b2(:,:,k) = A(:,:,k)*f(:,:,k);
+                b2(:,:,k) = A(:,:,k)*diag(cos(alpha))*f(:,:,k);
             end
             
 %             Comment plotting
@@ -206,7 +216,7 @@ for leg = leg_list
 
             % Muscle volume (in m3)
             volume = pcsa.*lmoOpt'; % PCSA * optimal muscle fibre length
-            
+
             % Optimal length
             lmo = lmoOpt';
             % Slack length
@@ -228,9 +238,14 @@ for leg = leg_list
             % Minimal force when activation is 0 (passive)
             for j = 1:34
                 for k = 1:101
+%                     force_length_velocity(j,:,k) = factive(j,:,k) / ...
+%                         (f0(j) * cos(alpha(j)) * activation(j,:,k));
+%                     fmax(j,:,k) = f0(j) * cos(alpha(j)) * ...
+%                         force_length_velocity(j,:,k) + ... % Activation set to 1
+%                         fpassive(j,:,k);
                     force_length_velocity(j,:,k) = factive(j,:,k) / ...
-                        (f0(j) * cos(alpha(j)) * activation(j,:,k));
-                    fmax(j,:,k) = f0(j) * cos(alpha(j)) * ...
+                        (f0(j) * activation(j,:,k));
+                    fmax(j,:,k) = f0(j) * ...
                         force_length_velocity(j,:,k) + ... % Activation set to 1
                         fpassive(j,:,k);
                     fmin(j,:,k) = fpassive(j,:,k); % Activation set to 0
@@ -240,7 +255,7 @@ for leg = leg_list
 
             %% Cost functions
 
-            % Sum of musculo-tendon forces
+            % Sum of muscle forces
             J1 = sum(f,1); % At power 1
             J2 = sum(f.^2,1); % At power 2
             % J3 = sum(f.^3,1); % At power 3
@@ -265,12 +280,12 @@ for leg = leg_list
             % Sum of muscle powers
             J13 = sum((f.*vmt).^2,1); % At power 2
 
-            % Sum of musculo-tendon forces scaled by maximal muscle moments
+            % Sum of muscle forces scaled by maximal muscle moments
             for j = 1:34 % Estimated maximal muscle moments
                 for k = 1:101 % All frames (heel strike to heel strike)
                 fmaxjk = zeros(34,1); % Initialisation
                 fmaxjk(j,1) = fmax(j,1,k); % Instantaneous maximal force 
-                    b0 = abs(A(:,:,k)*fmaxjk); % Moment arm can be positive at one joint and negative at the other
+                    b0 = abs(A(:,:,k)*diag(cos(alpha))*fmaxjk); % Moment arm can be positive at one joint and negative at the other
                     M(j,:,k) = sum(b0)/sum(~b0 == 0); % Mean is case of biarticular muscle  
                 end
             end
@@ -301,7 +316,7 @@ for leg = leg_list
             dfdt = dfdl.*vmt; % Force rate
             for k = 1:101
                 K(:,:,k) = -(drdq(:,:,k) * f(:,:,k) - ...
-                    A(:,:,k).^2 * (dfdt(:,:,k)./vmt(:,:,k)));
+                    (A(:,:,k)*diag(cos(alpha))).^2 * (dfdt(:,:,k)./vmt(:,:,k)));
             end
             J18 = -sum(K(1:4,:,:),1); % Maximised joint stiffness (no subtalar)            
 
@@ -410,7 +425,7 @@ for leg = leg_list
                 for k = 1:101 % All frames (heel strike to heel strike)
                 fmaxjk = zeros(34,1); % Initialisation
                 fmaxjk(j,1) = fmax(j,1,k); % Instantaneous maximal force 
-                    b0 = abs(A(:,:,k)*fmaxjk); % Moment arm can be positive at one joint and negative at the other
+                    b0 = abs(A(:,:,k)*diag(cos(alpha))*fmaxjk); % Moment arm can be positive at one joint and negative at the other
                     M(j,:,k) = sum(b0)/sum(~b0 == 0); % Mean is case of biarticular muscle  
                 end
             end
@@ -455,7 +470,10 @@ for leg = leg_list
             data.M(:, :, :, trial, speed-1, leg) = M;
             data.fpassive(:, :, :, trial, speed-1, leg) = fpassive;
             % Dimensionality same as moment
-            data.A(:, :, :, trial, speed-1, leg) = A;
+            data.A_orig(:, :, :, trial, speed-1, leg) = A;
+            for k = 1 : 101
+                data.A(:, :, k, trial, speed-1, leg) = A(:, :, k) * diag(cos(alpha));
+            end
             data.b(:, :, :, trial, speed-1, leg) = b2;
             data.drdq(:, :, :, trial, speed-1, leg) = drdq;
 
@@ -506,6 +524,21 @@ for leg = leg_list
             
             data.K(:,:,:, trial, speed-1, leg) = K;
             fprintf('%d %d %d\n',trial,speed,leg);
+            
+            %% Foot-off
+            % Peaks of extension (i.e. plantarlexion) moment
+            [~,indminM] = min(b(:,4)); % Plantarlexion moment is negative
+            % Just before the first positive value after the peak
+            FootoffM = indminM + find(b(indminM + 1:end, 4)>0, 1, 'first') - 1;
+            % Most of the time = peak of plantarflexion angle
+            [~,indmina] = min(theta(indminM + 1:end, 4)); % Plantarlexion angle is negative
+            Footoffa = indminM + indmina;
+            
+            % Store
+            data.foot_off_index_m(:, :, trial, speed-1, leg) = FootoffM;
+            data.foot_off_index_a(:, :, trial, speed-1, leg) = Footoffa;
+            
+            fprintf('Footoff: M = %d, A = %d\n', FootoffM, Footoffa);            
         end
     end
 end
