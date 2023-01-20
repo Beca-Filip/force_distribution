@@ -39,11 +39,6 @@ for speed = 1 : 5
     for leg = 1 : 2
         for phase = 1 : 2
             
-            
-            % Decide phases
-            speed_list = speed;
-            leg_list = leg;
-            
             % If it's the stance phase
             if phase == 1
                 
@@ -79,12 +74,12 @@ for speed = 1 : 5
             
             % Calculate RMSE
             tic
-            [E, alpha] = IO_grid_search_normalized_variable_phase(Ngrid, data, vars, model, sample_cell_list, trial_list, speed_list, leg_list);
+            [E, alpha] = IO_grid_search_normalized_variable_phase(Ngrid, data, vars, model, sample_cell_list, trial_list, speed, leg);
             toc
             
             % Saving
             prepresuffix = sprintf('Ngrid_%d', Ngrid);
-            presuffix = sprintf('leg_%d_speed_%d_phase_%s_', leg_list, speed_list, phase);
+            presuffix = sprintf('leg_%d_speed_%d_phase_%s_', leg, speed, phase);
             suffix = datetimestr;
             
             save(sprintf('..\\..\\opti_results\\job_patient4\\diffnorm_gs_%s_%s_%s.mat', prepresuffix, presuffix, suffix));
