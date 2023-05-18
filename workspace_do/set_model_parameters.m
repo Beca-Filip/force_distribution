@@ -29,7 +29,7 @@ model.set_value(vars.parameters.m, data.mass(:, :, trial, speed, leg));
 model.set_value(vars.parameters.r, data.r(:, :, trial, speed, leg));
 
 % Set initial guess
-% model.set_initial(vars.variables.f, data.f(:, :, k, trial, speed, leg));
+model.set_initial(vars.variables.f, data.f(:, :, k, trial, speed, leg));
 % model.set_initial(vars.variables.f, (data.fmax(:, :, k, trial, speed, leg) + data.fmin(:, :, k, trial, speed, leg))/2);
-model.set_initial(vars.variables.f, data.finit_feas(:,:,k,trial,speed,leg));
+% model.set_initial(vars.variables.f, data.finit_feas(:,:,k,trial,speed,leg));
 end
