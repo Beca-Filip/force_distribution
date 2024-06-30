@@ -34,7 +34,7 @@ TAB = table();
 
 sample_list = 0:100;
 
-save_flag = 0;
+save_flag = 1;
 
 % Plotting options
 opts.xlabel = @(ii) {ternary_operator(ii >= 29, "$t$ [\%]", ""), 'interpreter', 'latex'};
@@ -42,26 +42,13 @@ opts.ylabel = @(ii) {sprintf("$f_{%d}$ [N]", ii), 'interpreter', 'latex'};
 
 % Do every leg, speed and phase
 for leg = [1, 2]
-for speed = [1 : 5]
+for speed = 1 : 5
 for trial = 1:10
     
     % Prepare gridding
     gridShape = [6, 6];
-    fig = figure;
-    
-    % Figure out the title
-    stitle = sprintf("Leg: %d, Speed: %d, Trial: %d", leg, speed, trial);
-    if any(any(any( ( data.fmax(:,:,:,trial,speed,leg) - data.fmin(:,:,:,trial,speed,leg) ) <= 0)))
-        stitle = strcat(stitle, "; Has fmin<=fmax");
-    end
-    if any(any(any( ( data.fmax(:,:,:,trial,speed,leg) - data.f(:,:,:,trial,speed,leg) ) < 0)))
-        stitle = strcat(stitle, "; Has fmax < f");
-    end
-    if any(any(any( ( data.f(:,:,:,trial,speed,leg) - data.fmin(:,:,:,trial,speed,leg) ) < 0)))
-        stitle = strcat(stitle, "; Has f < fmin");
-    end
-    suptitle(stitle);
-    
+    fig = figure('WindowState','maximized');
+        
     % Median filter the fmax <= fmin
     filtered_flag = 1;
     for k = 1 : size(data.f, 1)
@@ -77,6 +64,19 @@ for trial = 1:10
         end
     end
 
+    % Figure out the title
+    stitle = sprintf("Leg: %d, Speed: %d, Trial: %d", leg, speed, trial);
+    if any(any(any( ( data.fmax(:,:,:,trial,speed,leg) - data.fmin(:,:,:,trial,speed,leg) ) <= 0)))
+        stitle = strcat(stitle, "; Has fmin<=fmax");
+    end
+    if any(any(any( ( data.fmax(:,:,:,trial,speed,leg) - data.f(:,:,:,trial,speed,leg) ) < 0)))
+        stitle = strcat(stitle, "; Has fmax < f");
+    end
+    if any(any(any( ( data.f(:,:,:,trial,speed,leg) - data.fmin(:,:,:,trial,speed,leg) ) < 0)))
+        stitle = strcat(stitle, "; Has f < fmin");
+    end
+    sgtitle(stitle);
+
     set(gcf, 'Position', get(0, 'Screensize'));
     hold on;
     plot_vector_quantities_opts_shape(sample_list, data.f(:,:,:,trial,speed,leg), [], opts, gridShape, 'LineWidth', 2, 'Color', [0, 0, 1], 'DisplayName', 'Forces');
@@ -90,7 +90,11 @@ for trial = 1:10
             subplot(gridShape(1), gridShape(2), k)
             hold on;
             zeroIndices = find(( data.fmax(k,:,:,trial,speed,leg) - data.fmin(k,:,:,trial,speed,leg) ) <= 0);
-            scatter(zeroIndices-1, data.fmin(k,:,zeroIndices,trial,speed,leg), 20, 'r', 'DisplayName', '$f_{\rm max} <= f_{\rm min}$');
+            scatter( ...
+                reshape(zeroIndices-1, [], 1), ...
+                reshape(data.fmax(k,:,zeroIndices,trial,speed,leg), [], 1), ...
+                20, 'y', 'DisplayName', '$f_{\rm max} <= f_{\rm min}$' ...
+            );
         end
     end
     
@@ -100,17 +104,25 @@ for trial = 1:10
             subplot(gridShape(1), gridShape(2), k)
             hold on;
             zeroIndices = find(( data.fmax(k,:,:,trial,speed,leg) - data.f(k,:,:,trial,speed,leg) ) < 0);
-            scatter(zeroIndices-1, data.fmax(k,:,zeroIndices,trial,speed,leg), 20, 'g', 'DisplayName', '$f_{\rm max} <= f$');
+            scatter( ...
+                reshape(zeroIndices-1, [], 1), ...
+                reshape(data.fmax(k,:,zeroIndices,trial,speed,leg), [], 1), ...
+                20, 'g', 'DisplayName', '$f_{\rm max} <= f$' ...
+            );
         end
     end
     
-    % Plot the fmax <= f
+    % Plot the f <= fmin
     for k = 1 : size(data.f, 1)
         if any( ( data.f(k,:,:,trial,speed,leg) - data.fmin(k,:,:,trial,speed,leg) ) < 0)
             subplot(gridShape(1), gridShape(2), k)
             hold on;
             zeroIndices = find(( data.fmax(k,:,:,trial,speed,leg) - data.f(k,:,:,trial,speed,leg) ) < 0);
-            scatter(zeroIndices-1, data.fmax(k,:,zeroIndices,trial,speed,leg), 20, 'c', 'DisplayName', '$f_{\rm max} <= f$');
+            scatter( ...
+                reshape(zeroIndices-1, [], 1), ...
+                reshape(data.fmax(k,:,zeroIndices,trial,speed,leg), [], 1), ...
+                20, 'c', 'DisplayName', '$f_{\rm min} >= f$' ...
+            );
         end
     end
     
@@ -123,7 +135,7 @@ for trial = 1:10
           any( ( data.f(:,:,k,trial,speed,leg) - data.fmin(:,:,k,trial,speed,leg) ) < 0)
         
            % Calculate the closest feasiblepoint to the current force
-           ineqSlack = .05 * (data.fmax(:,:,k,trial,speed,leg) - data.fmin(:,:,k,trial,speed,leg));
+           ineqSlack = .005 * (data.fmax(:,:,k,trial,speed,leg) - data.fmin(:,:,k,trial,speed,leg));
            data.finit_feas(:, :, k, trial, speed, leg) = ...
            lsqlin(eye(size(data.f, 1)),data.f(:,:,k,trial,speed,leg),[],[], ...
            data.A(:,:,k,trial,speed,leg),data.b(:,:,k,trial,speed,leg),....
@@ -138,13 +150,19 @@ for trial = 1:10
     % Plot feasible points
     plot_vector_quantities_opts_shape(sample_list, data.finit_feas(:,:,:,trial,speed,leg), [], [], gridShape, '--', 'LineWidth', 2, 'Color', [1, 0.2, 0.2], 'DisplayName', 'ffeas');
     
+    lgd=legend('Location', 'best');
+    lgd.Position([1, 2]) = lgd.Position([1, 2]) + [.1, 0];
+
     if save_flag
         if ~filtered_flag
-            saveas(gcf, sprintf('temp/trj_leg_%d_speed_%d_trial_%d.png', leg, speed, trial));
+            saveas(gcf, sprintf('temp/s5_trj_leg_%d_speed_%d_trial_%d.png', leg, speed, trial));
         else
-            saveas(gcf, sprintf('temp/filt_trj_leg_%d_speed_%d_trial_%d.png', leg, speed, trial));
+            saveas(gcf, sprintf('temp/s5_filt_trj_leg_%d_speed_%d_trial_%d.png', leg, speed, trial));
         end
     end
+
+    pause(.01)
+    close(gcf);
 end    
 end
 end
