@@ -59,7 +59,7 @@ for sample_select = [1, 2]
     [alpha, err, exflg, out, lam, grad, hess] = IO_local_fmincon_search_normalized(alpha0, data, vars, model, sample_list, trial_list, speed_list, leg_list);
     
     % Save solution
-    save(sprintf("ios5/%d-%d-%d.mat", sample_select, speed_list, leg_list), "alpha", "err", "exflg", "out", "lam", "grad", "hess", "sample_select", "sample_list", "trial_list", "speed_list", "leg_list");
+    save(sprintf("ios4/%d-%d-%d.mat", sample_select, speed_list, leg_list), "alpha", "err", "exflg", "out", "lam", "grad", "hess", "sample_select", "sample_list", "trial_list", "speed_list", "leg_list");
 end
 end
 end
