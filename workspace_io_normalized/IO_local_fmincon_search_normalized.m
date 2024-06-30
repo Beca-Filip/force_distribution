@@ -1,4 +1,4 @@
-function [alpha_opt, fval_opt] = IO_local_fmincon_search_normalized(alpha0, data, vars, model, sample_list, trial_list, speed_list, leg_list)
+function [alpha_opt, fval_opt, varargout] = IO_local_fmincon_search_normalized(alpha0, data, vars, model, sample_list, trial_list, speed_list, leg_list)
 %IO_LOCAL_SEARCH performs a local gradient-free search over the cost function
 %parametrization.
 %
@@ -36,6 +36,22 @@ fmc_options = optimoptions(@fmincon, ...
          );
          
 % Call fmincon
-[alpha_opt, fval_opt, ef_opt, out_opt] = fmincon(fun,alpha0,A,b,Aeq,beq,lb,ub,nonlcon,fmc_options);
+[alpha_opt, fval_opt, ef_opt, out_opt, lambda_opt, grad_opt, hess_opt] = fmincon(fun,alpha0,A,b,Aeq,beq,lb,ub,nonlcon,fmc_options);
+
+if nargout > 6
+    varargout{5} = hess_opt;
+end
+if nargout > 5
+    varargout{4} = grad_opt;
+end
+if nargout > 4
+    varargout{3} = lambda_opt;
+end
+if nargout > 3
+    varargout{2} = out_opt;
+end
+if nargout > 2
+    varargout{1} = ef_opt;
+end
 
 end
