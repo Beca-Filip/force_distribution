@@ -10,6 +10,14 @@ load(data_dir);
 data.J_min(:) = 0;
 data.J_max = data.J_max ./ 1e3;
 
+% Force bounds
+data.fmax(data.fmax <= data.f) = 1.003 * data.f(data.fmax <= data.f);
+data.fmin(data.fmin >= data.f) = 0.997 * data.f(data.fmin >= data.f);
+
+epsil = 0.01;
+data.fmax(abs(data.fmax - data.f) < epsil) = data.fmax(abs(data.fmax - data.fmin) < epsil) + epsil;
+data.fmin(abs(data.f - data.fmin) < epsil) = max(zeros(size(data.fmin(abs(data.f - data.fmin) < epsil))), data.fmin(abs(data.f - data.fmin) < epsil) - epsil);
+
 % Exclude cf
 cf_exclude = [16, 17];
 
@@ -32,14 +40,19 @@ trial_list = 1:10;
 TAB = table();
 
 % Do every leg, speed and phase
-for leg_list = [1]
-for speed_list = [1, 5]
+for leg_list = [1, 2]
+for speed_list = [1, 2, 3, 4, 5]
 for sample_select = [1, 2]
     % select phase
+    % if sample_select == 1
+    %     sample_list = 1:4:61;
+    % else
+    %     sample_list = 61:4:101;
+    % end
     if sample_select == 1
-        sample_list = 1:4:61;
+        sample_list = 1:61;
     else
-        sample_list = 61:4:101;
+        sample_list = 61:101;
     end
     
     % RMSE and CC vector
@@ -69,3 +82,81 @@ end
 end
 end
 writetable(TAB, '..\..\bilevel_optim_results\job_doc_comparison\patient5\table.xlsx');
+
+%%
+
+TAB_RMSE = TAB(:, 1:2:end);
+TAB_RMSE_L1 = TAB_RMSE(:, 1:end/2);
+TAB_RMSE_L2 = TAB_RMSE(:, end/2+1:end);
+
+TAB_RMSE_L1_STANCE = TAB_RMSE_L1(:, 1:2:end);
+TAB_RMSE_L1_SWING = TAB_RMSE_L1(:, 2:2:end);
+TAB_RMSE_L2_STANCE = TAB_RMSE_L2(:, 1:2:end);
+TAB_RMSE_L2_SWING = TAB_RMSE_L2(:, 2:2:end);
+
+fnames = arrayfun(@(n) sprintf("$\\phi_{%d}$", n), 1:15, "UniformOutput", false);
+
+figure('WindowState','maximized');
+t = tiledlayout(2, 2, "TileSpacing", "tight");
+sgtitle('Subject 2 (i.e. Patient 5)', 'Interpreter', 'latex', 'FontSize', 20);
+
+ax_ymax = 500;
+nexttile; % subplot(2, 2, 1)
+bar(table2array(TAB_RMSE_L1_STANCE).');
+title('Leg 1, Stance', 'Interpreter', 'latex', 'FontSize', 20);
+% xlabel('Speed (linear from $0.25$ to $0.65 \frac{\rm m}{\rm s}$)', 'Interpreter', 'latex', 'FontSize', 20);
+ylabel('Prediction RMSE [$N$]', 'Interpreter', 'latex', 'FontSize', 20);
+ylim([0, ax_ymax]);
+xaxisproperties = get(gca, 'XAxis'); xaxisproperties.TickLabelInterpreter = "latex"; xaxisproperties.FontSize = 15;
+yaxisproperties = get(gca, 'YAxis'); yaxisproperties.TickLabelInterpreter = "latex"; yaxisproperties.FontSize = 15;
+
+
+[~, indexMin] = min(table2array(TAB_RMSE_L1_STANCE), [], 1);
+for j = 1 : size(indexMin, 2)
+    text(j, 1.0*ax_ymax, {sprintf("$\\phi_{%d}$", indexMin(j)); sprintf("%.1f [N]", TAB_RMSE_L1_STANCE{indexMin(j), j})}, 'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'Bold', 'HorizontalAlignment','center', 'VerticalAlignment', 'top');
+end
+
+nexttile; % subplot(2, 2, 2)
+bar(table2array(TAB_RMSE_L2_STANCE).');
+title('Leg 2, Stance', 'Interpreter', 'latex', 'FontSize', 20);
+% xlabel('Speed (linear from $0.25$ to $0.65 \frac{\rm m}{\rm s}$)', 'Interpreter', 'latex', 'FontSize', 20);
+% ylabel('Prediction RMSE [$N$]', 'Interpreter', 'latex', 'FontSize', 20);
+ylim([0, ax_ymax]);
+xaxisproperties = get(gca, 'XAxis'); xaxisproperties.TickLabelInterpreter = "latex"; xaxisproperties.FontSize = 15;
+yaxisproperties = get(gca, 'YAxis'); yaxisproperties.TickLabelInterpreter = "latex"; yaxisproperties.FontSize = 15;
+
+[~, indexMin] = min(table2array(TAB_RMSE_L2_STANCE), [], 1);
+for j = 1 : size(indexMin, 2)
+    text(j, 1.0*ax_ymax, {sprintf("$\\phi_{%d}$", indexMin(j)); sprintf("%.1f [N]", TAB_RMSE_L2_STANCE{indexMin(j), j})}, 'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'Bold', 'HorizontalAlignment','center', 'VerticalAlignment', 'top');
+end
+
+nexttile; % subplot(2, 2, 3)
+bar(table2array(TAB_RMSE_L1_SWING).');
+title('Leg 1, Swing', 'Interpreter', 'latex', 'FontSize', 20);
+xlabel('Speed (linear from $0.25$ to $0.65 \frac{\rm m}{\rm s}$)', 'Interpreter', 'latex', 'FontSize', 20);
+ylabel('Prediction RMSE [$N$]', 'Interpreter', 'latex', 'FontSize', 20);
+ylim([0, ax_ymax]);
+xaxisproperties = get(gca, 'XAxis'); xaxisproperties.TickLabelInterpreter = "latex"; xaxisproperties.FontSize = 15;
+yaxisproperties = get(gca, 'YAxis'); yaxisproperties.TickLabelInterpreter = "latex"; yaxisproperties.FontSize = 15;
+
+[~, indexMin] = min(table2array(TAB_RMSE_L1_SWING), [], 1);
+for j = 1 : size(indexMin, 2)
+    text(j, 1.0*ax_ymax, {sprintf("$\\phi_{%d}$", indexMin(j)); sprintf("%.1f [N]", TAB_RMSE_L1_SWING{indexMin(j), j})}, 'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'Bold', 'HorizontalAlignment','center', 'VerticalAlignment', 'top');
+end
+
+nexttile; % subplot(2, 2, 4)
+bar(table2array(TAB_RMSE_L2_SWING).');
+title('Leg 2, Swing', 'Interpreter', 'latex', 'FontSize', 20);
+xlabel('Speed (linear from $0.25$ to $0.65 \frac{\rm m}{\rm s}$)', 'Interpreter', 'latex', 'FontSize', 20);
+% ylabel('Prediction RMSE [$N$]', 'Interpreter', 'latex', 'FontSize', 20);
+legend(fnames, 'Interpreter', 'latex', 'FontSize', 15, 'Position', [0.9143 0.2737 0.0541 0.5361]);
+ylim([0, ax_ymax]);
+xaxisproperties = get(gca, 'XAxis'); xaxisproperties.TickLabelInterpreter = "latex"; xaxisproperties.FontSize = 15;
+yaxisproperties = get(gca, 'YAxis'); yaxisproperties.TickLabelInterpreter = "latex"; yaxisproperties.FontSize = 15;
+
+[~, indexMin] = min(table2array(TAB_RMSE_L2_SWING), [], 1);
+for j = 1 : size(indexMin, 2)
+    text(j, 1.0*ax_ymax, {sprintf("$\\phi_{%d}$", indexMin(j)); sprintf("%.1f [N]", TAB_RMSE_L2_SWING{indexMin(j), j})}, 'Interpreter', 'latex', 'FontSize', 14, 'FontWeight', 'Bold', 'HorizontalAlignment','center', 'VerticalAlignment', 'top');
+end
+
+exportgraphics(gcf, '..\..\bilevel_optim_results\job_doc_comparison\patient5\table_graphic.pdf', 'ContentType', 'vector');
