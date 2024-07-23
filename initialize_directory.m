@@ -5,3 +5,6 @@ addpath(casadi_relative_path);
 % Add all paths in this directory
 this_dir = '../force_distribution';
 addpath(genpath(this_dir));
+
+% Add tile figures
+addpath('../TileFigures/');
