@@ -49,7 +49,7 @@ for speed = speed_list
     
     % Create figure
     figure('Name', sprintf('Speed: %d', speed), 'Position', [0,0,1920,1080]);
-    suptitle(sprintf("Speed: %d", speed));
+    sgtitle(sprintf("Speed: %d", speed));
     % Get for each leg calculate the statistics
     for leg = leg_list
         % Get statistics

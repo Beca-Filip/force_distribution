@@ -227,7 +227,7 @@ exportgraphics(gcf, sprintf('../../bilevel_optim_results/job_ioc_results/patient
 %% FIGURE: Best Fit
 close all;
 
-figure('WindowState', 'maximized');
+fiteagure('WindowState', 'maximized');
 hold all;
 
 plotQuantilesAndPredictions(2, 3, 1, data, predictedRmsesPerTrial, predictedForces);

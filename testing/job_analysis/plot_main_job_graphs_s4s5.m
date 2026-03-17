@@ -174,11 +174,12 @@ end
 close all
 
 % Objective functions
-objective_fun_names = arrayfun(@(n) sprintf("$\\phi_{%d}$", n), 1:15, 'UniformOutput', false);
-objective_fun_param_names = arrayfun(@(n) sprintf("$\\theta_{%d}$", n), 1:15, 'UniformOutput', false);
+% objective_fun_names = arrayfun(@(n) sprintf("$\\phi_{%d}$", n), 1:15, 'UniformOutput', false);
+objective_fun_names = arrayfun(@(n) sprintf("$%d$", n), 1:2:15, 'UniformOutput', false);
+objective_fun_param_names = arrayfun(@(n) sprintf("$\\omega_{%d}$", n), 1:15, 'UniformOutput', false);
 objective_fun_cmap = linspecer(15);
 
-tick_locations = 1:15;
+tick_locations = 1:2:15;
 tick_strings = objective_fun_names;
 
 % Speeds
@@ -189,7 +190,7 @@ speed_s2 = linspace(0.25, 0.65, 5);
 speed_strings_s2 = arrayfun(@(n) sprintf("Speed=$$%.2f \\frac{\\textrm{m}}{\\textrm{s}}$$", speed_s2(n)), 1:5, 'UniformOutput', false);
 
 % Phases
-phase_strings = ["Stance phase.", "Swing phase."];
+phase_strings = ["Stance phase", "Swing phase"];
 
 figure('WindowState', 'maximized');
 
@@ -205,10 +206,11 @@ for ii = 1 : 15
     alphaBarPlot(ii).FaceColor = objective_fun_cmap(ii, :);
 end
 title(phase_strings(phase_select), 'FontSize', 25, 'Interpreter', 'latex');
-xlabel(speed_strings_s1(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
-ylabel('$\theta_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
+%xlabel(speed_strings_s1(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
+xlabel("$\phi_i$", 'Interpreter', 'latex', 'FontSize', 25);
+ylabel('$\omega_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
 ylim([0, 1]);
-xticks(tick_locations);
+xticks(tick_locations); xtickangle(0);
 xticklabels(tick_strings);
 ax1.FontSize = 25; ax1.TickLabelInterpreter = 'latex';
 
@@ -223,10 +225,11 @@ for ii = 1 : 15
     alphaBarPlot(ii).FaceColor = objective_fun_cmap(ii, :);
 end
 title(phase_strings(phase_select), 'FontSize', 25, 'Interpreter', 'latex');
-xlabel(speed_strings_s1(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
-ylabel('$\theta_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
+%xlabel(speed_strings_s1(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
+xlabel("$\phi_i$", 'Interpreter', 'latex', 'FontSize', 25);
+ylabel('$\omega_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
 ylim([0, 1]);
-xticks(tick_locations);
+xticks(tick_locations); xtickangle(0);
 xticklabels(tick_strings);
 ax2.FontSize = 25; ax2.TickLabelInterpreter = 'latex';
 
@@ -243,10 +246,11 @@ for ii = 1 : 15
     alphaBarPlot(ii).FaceColor = objective_fun_cmap(ii, :);
 end
 title(phase_strings(phase_select), 'FontSize', 25, 'Interpreter', 'latex');
-xlabel(speed_strings_s1(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
-ylabel('$\theta_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
+%xlabel(speed_strings_s1(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
+xlabel("$\phi_i$", 'Interpreter', 'latex', 'FontSize', 25);
+ylabel('$\omega_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
 ylim([0, 1]);
-xticks(tick_locations);
+xticks(tick_locations); xtickangle(0);
 xticklabels(tick_strings);
 ax3.FontSize = 25; ax3.TickLabelInterpreter = 'latex';
 
@@ -261,10 +265,11 @@ for ii = 1 : 15
     alphaBarPlot(ii).FaceColor = objective_fun_cmap(ii, :);
 end
 title(phase_strings(phase_select), 'FontSize', 25, 'Interpreter', 'latex');
-xlabel(speed_strings_s1(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
-ylabel('$\theta_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
+%xlabel(speed_strings_s1(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
+xlabel("$\phi_i$", 'Interpreter', 'latex', 'FontSize', 25);
+ylabel('$\omega_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
 ylim([0, 1]);
-xticks(tick_locations);
+xticks(tick_locations); xtickangle(0);
 xticklabels(tick_strings);
 ax4.FontSize = 25; ax4.TickLabelInterpreter = 'latex';
 
@@ -281,10 +286,11 @@ for ii = 1 : 15
     alphaBarPlot(ii).FaceColor = objective_fun_cmap(ii, :);
 end
 title(phase_strings(phase_select), 'FontSize', 25, 'Interpreter', 'latex');
-xlabel(speed_strings_s2(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
-ylabel('$\theta_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
+%xlabel(speed_strings_s2(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
+xlabel("$\phi_i$", 'Interpreter', 'latex', 'FontSize', 25);
+ylabel('$\omega_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
 ylim([0, 1]);
-xticks(tick_locations);
+xticks(tick_locations); xtickangle(0);
 xticklabels(tick_strings);
 ax5.FontSize = 25; ax5.TickLabelInterpreter = 'latex';
 
@@ -299,10 +305,11 @@ for ii = 1 : 15
     alphaBarPlot(ii).FaceColor = objective_fun_cmap(ii, :);
 end
 title(phase_strings(phase_select), 'FontSize', 25, 'Interpreter', 'latex');
-xlabel(speed_strings_s2(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
-ylabel('$\theta_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
+%xlabel(speed_strings_s2(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
+xlabel("$\phi_i$", 'Interpreter', 'latex', 'FontSize', 25);
+ylabel('$\omega_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
 ylim([0, 1]);
-xticks(tick_locations);
+xticks(tick_locations); xtickangle(0);
 xticklabels(tick_strings);
 ax6.FontSize = 25; ax6.TickLabelInterpreter = 'latex';
 
@@ -319,10 +326,11 @@ for ii = 1 : 15
     alphaBarPlot(ii).FaceColor = objective_fun_cmap(ii, :);
 end
 title(phase_strings(phase_select), 'FontSize', 25, 'Interpreter', 'latex');
-xlabel(speed_strings_s2(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
-ylabel('$\theta_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
+%xlabel(speed_strings_s2(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
+xlabel("$\phi_i$", 'Interpreter', 'latex', 'FontSize', 25);
+ylabel('$\omega_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
 ylim([0, 1]);
-xticks(tick_locations);
+xticks(tick_locations); xtickangle(0);
 xticklabels(tick_strings);
 ax7.FontSize = 25; ax7.TickLabelInterpreter = 'latex';
 
@@ -337,36 +345,39 @@ for ii = 1 : 15
     alphaBarPlot(ii).FaceColor = objective_fun_cmap(ii, :);
 end
 title(phase_strings(phase_select), 'FontSize', 25, 'Interpreter', 'latex');
-xlabel(speed_strings_s2(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
-ylabel('$\theta_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
+%xlabel(speed_strings_s2(speed_select), 'Interpreter', 'latex', 'FontSize', 20);
+xlabel("$\phi_i$", 'Interpreter', 'latex', 'FontSize', 25);
+ylabel('$\omega_i$ [mag.]', 'FontSize', 25, 'Interpreter', 'latex');
 ylim([0, 1]);
-xticks(tick_locations);
+xticks(tick_locations); xtickangle(0);
 xticklabels(tick_strings);
 ax8.FontSize = 25; ax8.TickLabelInterpreter = 'latex';
 
 % Legend
-legend(objective_fun_param_names, 'Interpreter', 'latex', 'FontSize', 25, 'Units', 'normalized', 'Position', [0.9180 0.1100 0.0296 0.2839]);
+% legend(objective_fun_param_names, 'Interpreter', 'latex', 'FontSize', 25, 'Units', 'normalized', 'Position', [0.9180 0.1100 0.0296 0.2839]);
+legend(objective_fun_param_names, 'Interpreter', 'latex', 'FontSize', 25, 'Units', 'normalized', 'Position', [0.9180 0.1200 0.0296 0.2839]);
+% legend(objective_fun_param_names, 'Interpreter', 'latex', 'FontSize', 25, 'Units', 'normalized', 'Position', [0.9180 0.15 0.0296 0.2839]);
 
 % Annotations
 tbSize = [0.1, 0.1];
 xPosAnnotLeg1 = (ax1.Position(1) + ax2.Position(1) + ax2.Position(3) - tbSize(1)) / 2;
 yPosAnnotLeg1 = (ax1.Position(2) + ax1.Position(4));
-AnnotLeg1 = annotation('textbox', [xPosAnnotLeg1, yPosAnnotLeg1, tbSize], 'String', 'Non-paretic leg.', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'EdgeColor', 'none', 'FontSize', 30, 'Interpreter', 'latex');
+AnnotLeg1 = annotation('textbox', [xPosAnnotLeg1, yPosAnnotLeg1, tbSize], 'String', 'Non-paretic leg', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'EdgeColor', 'none', 'FontSize', 30, 'Interpreter', 'latex');
 
 tbSize = [0.1, 0.1];
 xPosAnnotLeg2 = (ax3.Position(1) + ax4.Position(1) + ax4.Position(3) - tbSize(1)) / 2;
 yPosAnnotLeg2 = (ax3.Position(2) + ax3.Position(4));
-AnnotLeg2 = annotation('textbox', [xPosAnnotLeg2, yPosAnnotLeg2, tbSize], 'String', 'Paretic leg.', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'EdgeColor', 'none', 'FontSize', 30, 'Interpreter', 'latex');
+AnnotLeg2 = annotation('textbox', [xPosAnnotLeg2, yPosAnnotLeg2, tbSize], 'String', 'Paretic leg', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'EdgeColor', 'none', 'FontSize', 30, 'Interpreter', 'latex');
 
 tbSize = [0.1, 0.1];
 xPosAnnotS1 = ax1.Position(1) - ax1.Position(3)/2 - tbSize(1)/2;
 yPosAnnotS1 = (ax1.Position(2) + ax1.Position(4)/2 - tbSize(2)/2);
-AnnotS1 = annotation('textbox', [xPosAnnotS1, yPosAnnotS1, tbSize], 'String', {'S1 : High'; 'functioning'; 'participant.'}, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'EdgeColor', 'none', 'FontSize', 30, 'Interpreter', 'latex');
+AnnotS1 = annotation('textbox', [xPosAnnotS1, yPosAnnotS1, tbSize], 'String', {'High'; 'functioning'; 'participant'}, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'EdgeColor', 'none', 'FontSize', 30, 'Interpreter', 'latex');
 
 tbSize = [0.1, 0.1];
 xPosAnnotS2 = ax5.Position(1) - ax5.Position(3)/2 - tbSize(1)/2;
 yPosAnnotS2 = (ax5.Position(2) + ax5.Position(4)/2 - tbSize(2)/2);
-AnnotS2 = annotation('textbox', [xPosAnnotS2, yPosAnnotS2, tbSize], 'String', {'S2 : Low'; 'functioning'; 'participant.'}, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'EdgeColor', 'none', 'FontSize', 30, 'Interpreter', 'latex');
+AnnotS2 = annotation('textbox', [xPosAnnotS2, yPosAnnotS2, tbSize], 'String', {'Low'; 'functioning'; 'participant'}, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'EdgeColor', 'none', 'FontSize', 30, 'Interpreter', 'latex');
 
 % % Separator lines
 % vertPosBias = 0.025;
@@ -383,7 +394,14 @@ AnnotS2 = annotation('textbox', [xPosAnnotS2, yPosAnnotS2, tbSize], 'String', {'
 
 TileFigures
 
+% Rectangles
+annotation(gcf, 'rectangle', [0.01, 0.5125, .95, .4875], 'LineWidth', 2);
+annotation(gcf, 'rectangle', [0.01, 0.025, .95, .4875], 'LineWidth', 2);
+annotation(gcf, 'rectangle', [0.01, 0.5125, .08125, .4875], 'LineWidth', 2);
+annotation(gcf, 'rectangle', [0.01, 0.025, .08125, .4875], 'LineWidth', 2);
+annotation(gcf, 'rectangle', [0.01, 0.5125, .49, .4875], 'LineWidth', 2);
+annotation(gcf, 'rectangle', [0.01, 0.025, .49, .4875], 'LineWidth', 2);
 
 % Save figure
-exportgraphics(gcf, sprintf('../../bilevel_optim_results/job_ioc_results/theta-vs-phase-leg-subj.pdf'), 'ContentType', 'vector');
-exportgraphics(gcf, sprintf('../../bilevel_optim_results/job_ioc_results/theta-vs-phase-leg-subj.png'), 'ContentType', 'image', 'Resolution', 300);
+% exportgraphics(gcf, sprintf('../../bilevel_optim_results/job_ioc_results/theta-vs-phase-leg-subj.pdf'), 'ContentType', 'vector');
+% exportgraphics(gcf, sprintf('../../bilevel_optim_results/job_ioc_results/theta-vs-phase-leg-subj.png'), 'ContentType', 'image', 'Resolution', 300);

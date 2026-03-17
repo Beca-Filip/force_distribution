@@ -44,6 +44,11 @@ for leg_list = [1, 2]
 for speed_list = 1:5
 for sample_select = [1, 2]
     % select phase
+    % if sample_select == 1
+    %     sample_list = 1:4:61;
+    % else
+    %     sample_list = 61:4:101;
+    % end
     if sample_select == 1
         sample_list = 1:61;
     else

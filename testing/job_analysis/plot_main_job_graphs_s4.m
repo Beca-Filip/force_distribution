@@ -10,6 +10,8 @@ load(data_dir);
 data.J_min(:) = 0;
 data.J_max = data.J_max ./ 1e3;
 
+
+
 % Force bounds
 data.fmax(data.fmax <= data.f) = 1.003 * data.f(data.fmax <= data.f);
 data.fmin(data.fmin >= data.f) = 0.997 * data.f(data.fmin >= data.f);
