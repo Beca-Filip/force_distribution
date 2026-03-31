@@ -1,75 +1,85 @@
-function [Fout, varargout] = QP_subroutine(Q, l, data, vars, model, sample_list, trial_list, speed_list, leg_list)
+function [Fout, varargout] = QP_subroutine(Q, l, data, vars, model, sample_list, trial_list, speed_list, leg_list, varargin)
+%QP_SUBROUTINE  Solve the parametric QP over all requested conditions.
+%
+%   Fout = QP_SUBROUTINE(Q, l, data, vars, model, ...)
+%   [Fout, dFout] = QP_SUBROUTINE(Q, l, data, vars, model, ...)
+%
+%   When called with two outputs, also returns dFout: the sensitivity of
+%   each optimal force vector f* w.r.t. the IO parameter vector
+%   theta = [q; l], where q holds the lower-triangular entries of the
+%   Cholesky factor L of Q (Q = L*L').
+%
+%   Outputs:
+%     Fout  - [n x 1 x nsamples x ntrials x nspeeds x nlegs]
+%     dFout - [n x ntheta x nsamples x ntrials x nspeeds x nlegs]  (optional)
+%             ntheta = n*(n+1)/2 + n
 
-% Number of optimizations to do
+sens_flag = nargout >= 2;
+
+n        = size(vars.variables.f, 1);
 nsamples = length(sample_list);
-ntrials = length(trial_list);
-nspeeds = length(speed_list);
-nlegs = length(leg_list);
+ntrials  = length(trial_list);
+nspeeds  = length(speed_list);
+nlegs    = length(leg_list);
 
-% Number of QP variables
-n = size(vars.variables.f, 1);      % number of doc vars
-
-% Create output structure
 Fout = zeros([n, 1, nsamples, ntrials, nspeeds, nlegs]);
 
-% Counters
-cntsamples = 1;
-cnttrials = 1;
-cntspeeds = 1;
-cntlegs = 1;
+if sens_flag
+    ntheta = n*(n+1)/2 + n;
+    dFout  = zeros([n, ntheta, nsamples, ntrials, nspeeds, nlegs]);
+    % Use caller-supplied L when available (avoids re-factorising Q, which
+    % can fail when Q is PSD but not strictly PD at a fmincon trial point).
+    if ~isempty(varargin)
+        L = varargin{1};
+    else
+        L = chol(Q + 1e-12 * eye(n), 'lower');
+    end
+end
 
-% Loop over trials
+cntsamples = 1;
+cnttrials  = 1;
+cntspeeds  = 1;
+cntlegs    = 1;
+
 for trial = trial_list
-    
-    % Reset speed counter
+
     cntspeeds = 1;
-    % Loop over speeds
     for speed = speed_list
-        
-        % Reset leg counter
+
         cntlegs = 1;
-        % Loop over legs
         for leg = leg_list
-            
-            % Reset sample counter
+
             cntsamples = 1;
-            % Loop over samples
             for k = sample_list
 
-                % Set model parameters
                 model = set_qp_parameters(data, vars, model, k, trial, speed, leg);
-
-                % Set QP weights
                 model = set_qp_weights(Q, l, vars, model);
-
-                % Set force normalization
                 model = set_qp_normalization(data, vars, model);
 
-                % Optimize
-                % fprintf("(%d, %d, %d, %d)\n", k, trial, speed, leg);
-                sol = model.solve();
-
-                % Take the solution forces
+                sol   = model.solve();
                 f_opt = sol.value(vars.variables.f);
 
-                % Store them in output
+                if sens_flag
+                    lam_g  = sol.value(model.lam_g);
+                    df_dth = kkt_sensitivity(f_opt, lam_g, Q, L, data, k, trial, speed, leg);
+                    dFout(:, :, cntsamples, cnttrials, cntspeeds, cntlegs) = df_dth;
+                end
+
                 Fout(:, :, cntsamples, cnttrials, cntspeeds, cntlegs) = f_opt;
-                
-                % Augment sample counter
                 cntsamples = cntsamples + 1;
             end
-            
-            % Augment leg count
+
             cntlegs = cntlegs + 1;
         end
-        
-        % Augment speeds counter
+
         cntspeeds = cntspeeds + 1;
     end
-    
-    % Augment trial counter
+
     cnttrials = cnttrials + 1;
 end
 
+if sens_flag
+    varargout{1} = dFout;
+end
 
 end
