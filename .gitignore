@@ -1,2 +1,9 @@
 opti_results
 img
+testing/job_analysis/temp/
+bilevel_optim_results/job_ioc_results/
+bilevel_optim_results/job_doc_comparison
+testing/job_analysis/ios5-old/
+
+# Ignore excel tables
+*.xlsx

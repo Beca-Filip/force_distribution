@@ -59,13 +59,17 @@ end
 % Get constraints
 h = eq_constraint_function(f, A, b);
 g = ineq_constraint_function(f, fmin, fmax);
-ceq = h == 0;
-c = g <= 0;
+% ceq = h == 0;
+% c = g <= 0;
+ceq = h;
+c = g;
 
 % Add cost and constraints
 model.minimize(J);
-model.subject_to(ceq);
-model.subject_to(c);
+% model.subject_to(ceq);
+% model.subject_to(c);
+model.subject_to(ceq == 0);
+model.subject_to(c <= 0);
 
 % Set variables
 vars.variables.f = f;

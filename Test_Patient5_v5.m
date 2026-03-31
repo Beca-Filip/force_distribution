@@ -194,9 +194,14 @@ vmt = permute(Vmt(:,:,cycle), [2,3,1]);
 % Minimal force when activation is 0 (passive)
 for j = 1:34
     for k = 1:101
+        % force_length_velocity(j,:,k) = factive(j,:,k) / ...
+        %     (f0(j) * cos(alpha(j)) * activation(j,:,k));
+        % fmax(j,:,k) = f0(j) * cos(alpha(j)) * ...
+        %     force_length_velocity(j,:,k) + ... % Activation set to 1
+        %     fpassive(j,:,k);
         force_length_velocity(j,:,k) = factive(j,:,k) / ...
-            (f0(j) * cos(alpha(j)) * activation(j,:,k));
-        fmax(j,:,k) = f0(j) * cos(alpha(j)) * ...
+            (f0(j) * activation(j,:,k));
+        fmax(j,:,k) = f0(j) * ...
             force_length_velocity(j,:,k) + ... % Activation set to 1
             fpassive(j,:,k);
         fmin(j,:,k) = fpassive(j,:,k); % Activation set to 0

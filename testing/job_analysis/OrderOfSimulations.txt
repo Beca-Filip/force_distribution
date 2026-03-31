@@ -1,0 +1,31 @@
+Excluded CF 16 and 17.
+
+Gridpoints: 3060 for an estimated 4 hours per run.
+
+Simultaneous running of Patient 4 and Patient 5.
+
+Subj 4: 
+Leg 1 Speed 1 Samples(Phase) 1:4:61
+Leg 1 Speed 1 Samples(Phase) 61:4:101
+
+Leg 1 Speed 5 Samples(Phase) 1:4:61
+Leg 1 Speed 5 Samples(Phase) 61:4:101
+
+Leg 2 Speed 1 Samples(Phase) 1:4:61
+Leg 2 Speed 1 Samples(Phase) 61:4:101
+
+Leg 2 Speed 5 Samples(Phase) 1:4:61
+	Leg 2 Speed 5 Samples(Phase) 61:4:101
+
+Subj 5: 
+Leg 1 Speed 1 Samples(Phase) 1:4:61
+Leg 1 Speed 1 Samples(Phase) 61:4:101
+
+Leg 1 Speed 5 Samples(Phase) 1:4:61
+Leg 1 Speed 5 Samples(Phase) 61:4:101
+
+Leg 2 Speed 1 Samples(Phase) 1:4:61
+	Leg 2 Speed 1 Samples(Phase) 61:4:101
+
+	Leg 2 Speed 5 Samples(Phase) 1:4:61
+	Leg 2 Speed 5 Samples(Phase) 61:4:101

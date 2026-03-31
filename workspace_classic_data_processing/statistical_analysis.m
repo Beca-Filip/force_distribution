@@ -29,7 +29,8 @@ opts.ylabel = @(n) {sprintf('$f_{%d}(t)$ [N]', n), 'interpreter', 'latex', 'Font
 % opts.legend = @(n) {'$m \pm 3 \sigma$', '$m$', 'interpreter', 'latex'};
 
 % Plot statistics
-figure('WindowState', 'Maximized');
+% figure('WindowState', 'Maximized');
+figure('Position', [0,0,1920,1080]);
 patch_vector_quantities_opts(stdpatch_t, squeeze(stdpatch_f), [], [], [.5, .5, .5], 'FaceAlpha', .3);
 plot_vector_quantities_opts(sample_list-1, squeeze(mean_f), [], opts, 'LineWidth', 2);
 
