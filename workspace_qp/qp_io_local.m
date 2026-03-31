@@ -22,11 +22,11 @@ close all; clear all; clc;
 
 % ---- Subject definitions ------------------------------------------------
 subjects(1).id         = 4;
-subjects(1).data_dir   = '..\Optimization Model Data\Patient4.mat';
+subjects(1).data_dir   = fullfile('..', 'Optimization Model Data', 'Patient4.mat');
 subjects(1).speed_list = 1:5;
 
 subjects(2).id         = 5;
-subjects(2).data_dir   = '..\Optimization Model Data\Patient5.mat';
+subjects(2).data_dir   = fullfile('..', 'Optimization Model Data', 'Patient5.mat');
 subjects(2).speed_list = 1:5;
 
 % ---- Output directory ---------------------------------------------------
