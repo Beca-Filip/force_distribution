@@ -134,12 +134,22 @@ for si = 1:length(subjects)
             'rmse_per_trial', ...
             'sample_list', 'trial_list', 'speed_list', 'leg_list', 'subject_id', 'n');
 
-        % ---- Save figure ------------------------------------------------
+        % ---- Save prediction comparison figure --------------------------
         fig = figure('Visible', 'off', 'Units', 'normalized', 'Position', [0 0 1 1]);
         plot_qp_prediction_comparison(subject_id, speed_list, leg_list, ...
             data, rmse_per_trial, Fout(:, :, :, :, 1, 1));
         saveas(fig, [fname_base '.png']);
         close(fig);
+
+        % ---- Save Q / l weight heatmap ----------------------------------
+        fig_weights = qp_visualize_weights(Q_opt, l_opt);
+        exportgraphics(fig_weights, [fname_base '-weights.png'], 'Resolution', 150);
+        close(fig_weights);
+
+        % ---- Save eigendecomposition heatmap ----------------------------
+        fig_eig = qp_visualize_eig(Q_opt);
+        exportgraphics(fig_eig, [fname_base '-eig.png'], 'Resolution', 150);
+        close(fig_eig);
 
         fprintf('  Saved: %s\n', fname_base);
 
