@@ -105,7 +105,14 @@ RHS = -[RHS_q,                    W';
         zeros(ne + n_act, ntheta)];
 
 % ---- Solve and extract primal sensitivity ------------------------------
-sensitivity = K \ RHS;          % [(n+ne+n_act) x ntheta]
+% K can be singular when the active set is degenerate (e.g. both lower and
+% upper bounds active simultaneously).  lsqminnorm gives the minimum-norm
+% least-squares solution and does not produce Inf/NaN in that case.
+if rank(K) < size(K, 1)
+    sensitivity = lsqminnorm(K, RHS);
+else
+    sensitivity = K \ RHS;
+end
 df_dtheta   = sensitivity(1:n, :);   % [n x ntheta]
 
 end
