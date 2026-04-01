@@ -92,7 +92,9 @@ for ax = findall(fig, 'Type', 'axes')'
 end
 
 leg_labels = ["Nonparetic", "Paretic"];
-sgtitle(sprintf("Subject S%d,  Speed %d,  %s Leg", subj_id, speed_idx, leg_labels(leg_idx)), ...
+best_rmse  = rmse_per_trial(best_trial_idx);
+sgtitle(sprintf("Subject S%d,  Speed %d,  %s Leg  (best trial RMSE = %.4f)", ...
+    subj_id, speed_idx, leg_labels(leg_idx), best_rmse), ...
     'Interpreter', 'latex', 'FontSize', 20);
 
 end
