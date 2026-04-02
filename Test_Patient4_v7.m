@@ -353,14 +353,19 @@ ylabel('J/max(J)');
 %% Muscle forces
 figure
 plot(permute(fnormalisedf0,[3,1,2]))
-legend({'addbrev','addlong','addmagDist','addmagIsch','addmagMid', ...
+muscle_names = {'addbrev','addlong','addmagDist','addmagIsch','addmagMid', ...
     'addmagProx','glmax1','glmax2','glmax3','glmed1','glmed2','glmed3',...
     'glmin1','glmin2','glmin3','iliacus','psoas','semimem','semiten',...
     'bflh','bfsh','recfem','vasmed','vaslat','vasint','gaslat','gasmed',...
-    'tibant','tibpost','perbrev','perlong','pertert','soleus','edl','fdl'})
+    'tibant','tibpost','perbrev','perlong','pertert','soleus','edl','fdl'};
+legend(muscle_names)
 title ('Muscle forces');
 xlabel('% of Gait Cycle');
 ylabel('f/f0 (peak isometric force)');
+
+% Save muscle names for patient 4
+patient_4_muscle_names = muscle_names;
+save('patient_4_muscle_names.mat','patient_4_muscle_names')
 
 %% Foot-off
 % Peaks of extension (i.e. plantarlexion) moment
@@ -370,6 +375,3 @@ FootoffM = indminM + find(b(indminM + 1:end, 4)>0, 1, 'first') - 1
 % Most of the time (in sound limb) = peak of plantarflexion angle
 [~,indmina] = min(theta(indminM + 1:end, 4)); % Plantarlexion angle is negative
 Footoffa = indminM + indmina
-
-
-
