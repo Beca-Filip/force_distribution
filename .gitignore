@@ -7,3 +7,8 @@ testing/job_analysis/ios5-old/
 
 # Ignore excel tables
 *.xlsx
+
+# Ignore QP result folders (trailing slash: directories only, so that the
+# main.m / main_synergy.m scripts themselves stay tracked)
+workspace_qp/main/
+workspace_qp/main_synergy/

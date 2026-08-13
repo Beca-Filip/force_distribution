@@ -11,7 +11,7 @@ close all; clear all; clc;
 % The synergy groups are defined by name patterns below and are resolved
 % to per-patient muscle indices via build_synergy_info.
 %
-% Results are saved to results_qp_synergy/ as:
+% Results are saved to main_synergy/ (named after this script) as:
 %   subject-{S}-speed-{speed}-leg-{leg}.mat  (weights + metadata)
 %   subject-{S}-speed-{speed}-leg-{leg}.png  (prediction comparison)
 %   subject-{S}-speed-{speed}-leg-{leg}-weights.png
@@ -45,7 +45,7 @@ subjects(2).muscle_names_file = fullfile('..', 'patient_5_muscle_names.mat');
 subjects(2).speed_list   = 1:5;
 
 % ---- Output directory ---------------------------------------------------
-results_dir = fullfile(fileparts(mfilename('fullpath')), 'results_qp_synergy');
+results_dir = fullfile(fileparts(mfilename('fullpath')), 'main_synergy');
 if ~exist(results_dir, 'dir')
     mkdir(results_dir);
 end

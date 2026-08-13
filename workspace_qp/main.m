@@ -11,7 +11,7 @@ close all; clear all; clc;
 %                        of Q  (Q = L*L', PSD by construction)
 %   l  (n x 1)           linear weight vector
 %
-% Results are saved to results_qp/ as
+% Results are saved to main/ (named after this script) as
 %   subject-{S}-speed-{speed}-leg-{leg}.mat   (weights + metadata)
 %   subject-{S}-speed-{speed}-leg-{leg}.png   (prediction comparison figure)
 %
@@ -30,7 +30,7 @@ subjects(2).data_dir   = fullfile('..', 'Optimization Model Data', 'Patient5.mat
 subjects(2).speed_list = 1:5;
 
 % ---- Output directory ---------------------------------------------------
-results_dir = fullfile(fileparts(mfilename('fullpath')), 'results_qp');
+results_dir = fullfile(fileparts(mfilename('fullpath')), 'main');
 if ~exist(results_dir, 'dir')
     mkdir(results_dir);
 end
