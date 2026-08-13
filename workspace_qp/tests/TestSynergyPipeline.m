@@ -9,8 +9,6 @@ classdef TestSynergyPipeline < matlab.unittest.TestCase
 
     properties (Constant)
         CASADI_PATH = 'C:/Users/filip/Documents/GitHub/casadi-3.7.0-windows64-matlab2018b'
-        DATA_ROOT   = fullfile('..', 'Optimization Model Data')
-        NAMES_ROOT  = '..'
     end
 
     properties
@@ -29,15 +27,20 @@ classdef TestSynergyPipeline < matlab.unittest.TestCase
     methods (TestClassSetup)
 
         function add_paths(tc)
+            % Paths are derived from this file's location rather than pwd:
+            % the test framework runs the class with tests/ as the working
+            % folder, so pwd-relative paths resolve one level too deep.
+            repo = tc.repo_root();
             addpath(tc.CASADI_PATH);
-            addpath(fullfile(pwd));                              % workspace_qp itself
-            addpath(fullfile(pwd, '..', 'workspace_do'));        % eq_constraint_function
-            addpath(fullfile(pwd, '..', 'utils', 'error_utils')); % scalar rmse
+            addpath(fullfile(repo, 'workspace_qp'));            % workspace_qp itself
+            addpath(fullfile(repo, 'workspace_do'));            % eq_constraint_function
+            addpath(fullfile(repo, 'utils', 'error_utils'));    % scalar rmse
         end
 
         function load_muscle_names(tc)
-            mn4 = load(fullfile(tc.NAMES_ROOT, 'patient_4_muscle_names.mat'));
-            mn5 = load(fullfile(tc.NAMES_ROOT, 'patient_5_muscle_names.mat'));
+            repo = tc.repo_root();
+            mn4 = load(fullfile(repo, 'patient_4_muscle_names.mat'));
+            mn5 = load(fullfile(repo, 'patient_5_muscle_names.mat'));
             tc.muscle_names_p4 = mn4.patient_4_muscle_names;
             tc.muscle_names_p5 = mn5.patient_5_muscle_names;
             tc.synergy_groups  = { ...
@@ -300,6 +303,12 @@ classdef TestSynergyPipeline < matlab.unittest.TestCase
     % Helpers
     % =====================================================================
     methods (Access = private)
+
+        function repo = repo_root(~)
+            % <repo>/workspace_qp/tests/this_file.m  ->  <repo>
+            this_dir = fileparts(mfilename('fullpath'));
+            repo     = fileparts(fileparts(this_dir));
+        end
 
         function theta = make_theta0(~, si)
             q0 = zeros(si.n_theta_q, 1); q0(si.diag_mask) = 1;

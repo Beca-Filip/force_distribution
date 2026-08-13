@@ -11,6 +11,11 @@ function [E, varargout] = QP_IO_inner_loop(theta, data, vars, model, sample_list
 %   theta is a vector of length n*(n+1)/2 + n:
 %     theta(1 : n*(n+1)/2)     -> lower-triangular entries of L, Q = L*L'
 %     theta(n*(n+1)/2+1 : end) -> l  (linear weight vector)
+%
+%   sample_list, trial_list, speed_list and leg_list may each be vectors.
+%   Both E and dE are then pooled over every (sample, trial, speed, leg)
+%   combination, so a single (Q, l) can be fitted jointly across speeds and
+%   legs rather than one condition at a time.
 
 n = size(vars.variables.f, 1);
 [Q, l, L] = theta_to_Ql(theta, n);
@@ -30,22 +35,32 @@ end
 E = rmse(Fref, Fout);
 
 if grad_flag
-    % dE/dtheta = (1/(E*N)) * sum_{i,k,t} (Fout - Fref)[i,k,t] * dFout[i,p,k,t]
+    % dE/dtheta = (1/(E*N)) * sum_{i,m} (Fout - Fref)[i,m] * dFout[i,p,m]
+    % where m ranges over every condition (sample, trial, speed, leg).
     %
-    % Fout, Fref : [n x 1 x nsamples x ntrials x 1 x 1]
-    % dFout      : [n x ntheta x nsamples x ntrials x 1 x 1]
+    % Fout, Fref : [n x 1 x nsamples x ntrials x nspeeds x nlegs]
+    % dFout      : [n x ntheta x nsamples x ntrials x nspeeds x nlegs]
     %
-    % Reshape to [n x M] and [n x ntheta x M] where M = nsamples*ntrials,
-    % then contract the n and M dimensions.
+    % Reshape to [n x M] and [n x ntheta x M] where
+    % M = nsamples*ntrials*nspeeds*nlegs, then contract the n and M dims.
+    %
+    % Dimension 2 of Fout/Fref is singleton, so collapsing dims 3..6 into a
+    % single index m enumerates conditions in column-major order
+    % (sample fastest, then trial, then speed, then leg) -- exactly the order
+    % dFout's dims 3..6 collapse into.  The two are therefore aligned
+    % element-for-element, and reshape itself errors out if a dimension is
+    % ever mismatched.
 
     ntheta = numel(theta);
     N      = numel(Fref);
     ns     = length(sample_list);
     nt     = length(trial_list);
-    M      = ns * nt;
+    nsp    = length(speed_list);
+    nlg    = length(leg_list);
+    M      = ns * nt * nsp * nlg;
 
-    r  = reshape(Fout(:,1,:,:,1,1) - Fref(:,1,:,:,1,1), n, M);  % [n x M]
-    dF = reshape(dFout(:,:,:,:,1,1), n, ntheta, M);               % [n x ntheta x M]
+    r  = reshape(Fout - Fref, n, M);           % [n x M]
+    dF = reshape(dFout, n, ntheta, M);         % [n x ntheta x M]
 
     % dE[p] = (1/(E*N)) * sum_{i,m} r[i,m] * dF[i,p,m]
     %       = (1/(E*N)) * (dF_mat * r_vec)
