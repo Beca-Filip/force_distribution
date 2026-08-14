@@ -32,7 +32,8 @@ classdef TestSynergyPipeline < matlab.unittest.TestCase
             % folder, so pwd-relative paths resolve one level too deep.
             repo = tc.repo_root();
             addpath(tc.CASADI_PATH);
-            addpath(fullfile(repo, 'workspace_qp'));            % workspace_qp itself
+            addpath(fullfile(repo, 'workspace_qp'));            % shared QP helpers
+            addpath(fullfile(repo, 'retired', 'workspace_qp_synergy'));  % retired synergy sources
             addpath(fullfile(repo, 'workspace_do'));            % eq_constraint_function
             addpath(fullfile(repo, 'utils', 'error_utils'));    % scalar rmse
         end
@@ -305,9 +306,9 @@ classdef TestSynergyPipeline < matlab.unittest.TestCase
     methods (Access = private)
 
         function repo = repo_root(~)
-            % <repo>/workspace_qp/tests/this_file.m  ->  <repo>
+            % <repo>/retired/workspace_qp_synergy/tests/this_file.m  ->  <repo>
             this_dir = fileparts(mfilename('fullpath'));
-            repo     = fileparts(fileparts(this_dir));
+            repo     = fileparts(fileparts(fileparts(this_dir)));
         end
 
         function theta = make_theta0(~, si)
