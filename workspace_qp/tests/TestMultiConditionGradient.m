@@ -209,6 +209,116 @@ classdef TestMultiConditionGradient < matlab.unittest.TestCase
             end
         end
 
+        function test_gradient_fd_with_shift_disabled(tc)
+            % Every other test here runs with the default cond_max = 1e4, so
+            % they validate the SHIFTED gradient (Q = L*L' + eps*I). This one
+            % keeps the legacy unshifted path covered, since cond_max = Inf is
+            % still reachable and is how the pre-2026-08-14 fits are reproduced.
+            theta = tc.theta0;
+            [~, dE_an] = QP_IO_inner_loop(theta, tc.data, tc.vars, tc.model, ...
+                tc.sample_list, tc.trial_list, tc.speed_list, tc.leg_list, Inf);
+
+            rng(11);
+            nq = tc.n * (tc.n + 1) / 2;
+            check_idx = [randperm(nq, 4), nq + randperm(tc.n, 2)];
+
+            h = 1e-6;
+            for ci = check_idx
+                tp = theta; tp(ci) = tp(ci) + h;
+                tm = theta; tm(ci) = tm(ci) - h;
+                E_p = QP_IO_inner_loop(tp, tc.data, tc.vars, tc.model, ...
+                    tc.sample_list, tc.trial_list, tc.speed_list, tc.leg_list, Inf);
+                E_m = QP_IO_inner_loop(tm, tc.data, tc.vars, tc.model, ...
+                    tc.sample_list, tc.trial_list, tc.speed_list, tc.leg_list, Inf);
+                tc.verify_gradient_component(dE_an(ci), (E_p - E_m) / (2*h), ci);
+            end
+        end
+
+        function test_shift_actually_changes_the_objective(tc)
+            % Guard: if the shift were silently a no-op, the test above and the
+            % default-path tests would be checking the same thing and the
+            % conditioning work would be invisible here.
+            E_shifted   = QP_IO_inner_loop(tc.theta0, tc.data, tc.vars, tc.model, ...
+                tc.sample_list, tc.trial_list, tc.speed_list, tc.leg_list, 1e2);
+            E_unshifted = QP_IO_inner_loop(tc.theta0, tc.data, tc.vars, tc.model, ...
+                tc.sample_list, tc.trial_list, tc.speed_list, tc.leg_list, Inf);
+            tc.verifyNotEqual(E_shifted, E_unshifted, ...
+                'The eps*I shift must actually reach the QP cost.');
+        end
+
+        function test_fmincon_maintains_the_cond_bound(tc)
+            % End-to-end: objective, analytic objective gradient, trace
+            % equality and its analytic gradient, driven by fmincon together.
+            %
+            % Goes to fmincon directly rather than through
+            % QP_IO_FMINCON_SEARCH because that function hardcodes
+            % MaxIterations = 1e3 and a PlotFcn, which is far too heavy for a
+            % unit test. The composition under test -- shifted objective plus
+            % trace constraint, gradients on both -- is identical.
+            n_m      = tc.n;
+            nq       = n_m * (n_m + 1) / 2;
+            cond_max = 1e3;
+            eps_shift = n_m / cond_max;
+
+            % main.m's feasible start: L0 = sqrt(1-eps)*I  =>  Q0 = I.
+            L0 = sqrt(1 - eps_shift) * eye(n_m);
+            theta_start = [L0(tril(true(n_m))); zeros(n_m, 1)];
+
+            fun = @(th) QP_IO_inner_loop(th, tc.data, tc.vars, tc.model, ...
+                tc.sample_list, tc.trial_list, tc.speed_list, tc.leg_list, cond_max);
+            nonlcon = @(th) qp_trace_constraint(th, n_m, cond_max);
+
+            mask = tril(true(n_m));
+            [rr, cc] = find(mask);
+            lb = -inf(numel(theta_start), 1);
+            lb(rr == cc) = 0;
+
+            % Short run on purpose. The IO problem does not converge in any
+            % budget a unit test can afford -- measured on this fixture, sqp
+            % was still at constrviolation 4e-4 and firstorderopt 2e-3 after
+            % 393 iterations, and feasibility was NOT monotone (1.1e-5 at 100
+            % iterations, worse at 400). So this test asserts only what holds
+            % at EVERY iterate, plus the fact that the constraint is doing
+            % work. Tight feasibility of a converged run is checked against a
+            % well-behaved objective in TestConditioning instead.
+            opts = optimoptions(@fmincon, ...
+                'SpecifyObjectiveGradient',  true, ...
+                'SpecifyConstraintGradient', true, ...
+                'Display',                   'off', ...
+                'MaxIterations',             25);
+
+            theta_end = fmincon(fun, theta_start, [], [], [], [], lb, [], nonlcon, opts);
+
+            Q_end = theta_to_Ql(theta_end, n_m, cond_max);
+            e     = eig(Q_end);
+
+            tc.verifyNotEqual(theta_end, theta_start, ...
+                'The run must actually move, or the bound is trivially held.');
+
+            % Structural: true at every iterate, converged or not. The shift
+            % floors the spectrum, and lambda_max of a positive-definite
+            % matrix can never exceed its trace.
+            tc.verifyGreaterThanOrEqual(min(e), eps_shift - 1e-12, ...
+                'The shift must floor the spectrum regardless of convergence.');
+            tc.verifyLessThanOrEqual(max(e)/min(e), trace(Q_end)/eps_shift * (1 + 1e-9), ...
+                'cond(Q) <= trace(Q)/eps must hold unconditionally.');
+
+            % Teeth: the same run without the constraint drifts much further
+            % off trace(Q) = n. Without this comparison the assertions above
+            % would pass even if nonlcon were silently ignored.
+            theta_free = fmincon(fun, theta_start, [], [], [], [], lb, [], [], opts);
+            drift_constrained = abs(trace(theta_to_Ql(theta_end,  n_m, cond_max)) - n_m);
+            drift_free        = abs(trace(theta_to_Ql(theta_free, n_m, cond_max)) - n_m);
+
+            tc.verifyLessThan(drift_constrained, drift_free, ...
+                sprintf(['The trace constraint must hold the iterate closer to ' ...
+                         'trace(Q) = n than an unconstrained run ' ...
+                         '(constrained %.3e vs free %.3e).'], ...
+                        drift_constrained, drift_free));
+            tc.verifyLessThan(drift_constrained, 0.05 * n_m, ...
+                'The constrained run must stay near the trace surface.');
+        end
+
         function test_gradient_fd_single_condition_regression(tc)
             % The pre-fix code path was correct for one speed/leg; confirm the
             % fix did not disturb it.

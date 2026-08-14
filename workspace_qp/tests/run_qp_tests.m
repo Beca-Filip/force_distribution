@@ -3,7 +3,14 @@ function results = run_qp_tests(varargin)
 %
 %   results = RUN_QP_TESTS()               runs every suite
 %   results = RUN_QP_TESTS('gradient')     runs TestMultiConditionGradient
-%   results = RUN_QP_TESTS('synergy')      runs TestSynergyPipeline
+%   results = RUN_QP_TESTS('remap')        runs TestRemapQpToSubject
+%   results = RUN_QP_TESTS('whitening')    runs TestWhitening
+%   results = RUN_QP_TESTS('conditioning') runs TestConditioning
+%   results = RUN_QP_TESTS('synergy')      runs TestSynergyPipeline (RETIRED)
+%
+%   'all' covers the ACTIVE suites only.  The synergy pipeline was retired to
+%   <repo>/retired/workspace_qp_synergy/ (synergies make Q lose rank, so the
+%   DOC minimiser is not unique).  Ask for it by name to run it.
 %
 %   Run from the workspace_qp directory:
 %     cd workspace_qp
@@ -64,9 +71,29 @@ if any(strcmp(which_suite, {'all', 'gradient'}))
         fullfile(this_dir, 'TestMultiConditionGradient.m'))];
 end
 
-if any(strcmp(which_suite, {'all', 'synergy'}))
+if any(strcmp(which_suite, {'all', 'remap'}))
     suite = [suite, matlab.unittest.TestSuite.fromFile( ...
-        fullfile(this_dir, 'TestSynergyPipeline.m'))];
+        fullfile(this_dir, 'TestRemapQpToSubject.m'))];
+end
+
+if any(strcmp(which_suite, {'all', 'whitening'}))
+    suite = [suite, matlab.unittest.TestSuite.fromFile( ...
+        fullfile(this_dir, 'TestWhitening.m'))];
+end
+
+if any(strcmp(which_suite, {'all', 'conditioning'}))
+    suite = [suite, matlab.unittest.TestSuite.fromFile( ...
+        fullfile(this_dir, 'TestConditioning.m'))];
+end
+
+% Retired: not part of 'all'.  Its sources live outside workspace_qp, so the
+% retired folder has to go on the path before the class is loaded (see the
+% class-load binding note above).
+if strcmp(which_suite, 'synergy')
+    retired_dir = fullfile(repo_dir, 'retired', 'workspace_qp_synergy');
+    addpath(retired_dir);
+    suite = [suite, matlab.unittest.TestSuite.fromFile( ...
+        fullfile(retired_dir, 'tests', 'TestSynergyPipeline.m'))];
 end
 
 if isempty(suite)
