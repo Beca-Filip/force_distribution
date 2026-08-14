@@ -1,4 +1,4 @@
-function [E, varargout] = QP_IO_inner_loop(theta, data, vars, model, sample_list, trial_list, speed_list, leg_list)
+function [E, varargout] = QP_IO_inner_loop(theta, data, vars, model, sample_list, trial_list, speed_list, leg_list, cond_max)
 %QP_IO_INNER_LOOP  RMSE (and optionally its gradient) for the QP IO problem.
 %
 %   E        = QP_IO_INNER_LOOP(theta, ...)   objective only
@@ -16,9 +16,23 @@ function [E, varargout] = QP_IO_inner_loop(theta, data, vars, model, sample_list
 %   Both E and dE are then pooled over every (sample, trial, speed, leg)
 %   combination, so a single (Q, l) can be fitted jointly across speeds and
 %   legs rather than one condition at a time.
+%
+%   cond_max is optional (default 1e4) and is forwarded to THETA_TO_QL, which
+%   builds Q = L*L' + (n/cond_max)*I.  Pass Inf for the legacy unshifted
+%   Q = L*L'.  The trace constraint that completes the conditioning guarantee
+%   is imposed by QP_IO_FMINCON_SEARCH, not here; this function is just the
+%   objective and stays well defined at any theta.
 
 n = size(vars.variables.f, 1);
-[Q, l, L] = theta_to_Ql(theta, n);
+
+if nargin < 9 || isempty(cond_max)
+    cond_max = 1e4;
+end
+
+% Q carries the eps_shift, L does not.  kkt_sensitivity needs exactly that
+% pairing: Q enters the Hessian H = W'*Q*W, L enters dQ/dL, and dQ/dL is
+% unaffected by a constant shift.
+[Q, l, L] = theta_to_Ql(theta, n, cond_max);
 
 Fref = data.f(:, :, sample_list, trial_list, speed_list, leg_list);
 
@@ -71,12 +85,4 @@ if grad_flag
     varargout{1} = dF_mat * r_vec / (E * N);   % [ntheta x 1]
 end
 
-end
-
-% -------------------------------------------------------------------------
-
-function [Q, l, L] = theta_to_Ql(theta, n)
-nq = n*(n+1)/2;
-[Q, L] = chol_vec_to_Q(theta(1:nq), n);
-l = theta(nq+1:end);
 end

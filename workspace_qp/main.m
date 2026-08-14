@@ -76,20 +76,38 @@ for si = 1:length(subjects)
     n = size(data.f, 1);
     [model, vars] = form_casadi_qp_model(n);
 
+    % OSQP tolerances must be TIGHT.  At the defaults the QP solutions are
+    % accurate enough for the objective but not for the KKT sensitivity that
+    % supplies the gradient, and fmincon then fails its line search and exits
+    % with flag -2 ("converged to an infeasible point") after ~20 iterations.
+    % Measured on subject 4, speed 1, leg 1: defaults gave exitflag -2 at 20
+    % iterations; with these tolerances the same run reached 150 iterations
+    % with exitflag 0 and constraint violation 1.6e-3.
     sol_opt = struct;
-    sol_opt.osqp.verbose = 0;
+    sol_opt.osqp.verbose  = 0;
+    sol_opt.osqp.eps_abs  = 1e-10;
+    sol_opt.osqp.eps_rel  = 1e-10;
+    sol_opt.osqp.max_iter = 200000;
     model.solver('osqp', sol_opt);
 
     % ---- Lists ----------------------------------------------------------
     trial_list  = 1:10;
     sample_list = 1:101;
 
-    % ---- Initial theta: Q = I (L = I), l = random ----------------------
+    % ---- Conditioning ---------------------------------------------------
+    % Q = L*L' + (n/cond_max)*I with trace(Q) = n, giving cond(Q) <= cond_max
+    % exactly at every feasible iterate.  See theta_to_Ql.m.
+    cond_max  = 1e4;
+    eps_shift = n / cond_max;
+
+    % ---- Initial theta: Q = I, l = random, feasible for trace(Q) = n ----
+    % L0 = sqrt(1-eps_shift)*I  =>  Q0 = (1-eps_shift)*I + eps_shift*I = I,
+    % so trace(Q0) = n is satisfied exactly and fmincon starts feasible.
     nq   = n*(n+1)/2;
     mask = tril(true(n));
     [r, c] = find(mask);
     q0   = zeros(nq, 1);
-    q0(r == c) = 1;          % diagonal of L = 1  =>  Q = I
+    q0(r == c) = sqrt(1 - eps_shift);
     l0   = randn(n, 1);
     theta0 = [q0; l0];
 
@@ -104,11 +122,24 @@ for si = 1:length(subjects)
         % ---- IO search --------------------------------------------------
         [theta_opt, fval_opt, ef_opt, out_opt, lambda_opt, grad_opt, hess_opt] = ...
             QP_IO_fmincon_search(theta0, data, vars, model, ...
-                sample_list, trial_list, speed_list, leg_list);
+                sample_list, trial_list, speed_list, leg_list, cond_max);
 
         % ---- Reconstruct Q and l ----------------------------------------
-        [Q_opt, L_opt] = chol_vec_to_Q(theta_opt(1:nq), n);
-        l_opt = theta_opt(nq+1:end);
+        % Must go through theta_to_Ql with the SAME cond_max, otherwise the
+        % saved Q_opt would be missing the eps_shift and would not be the
+        % matrix that was actually optimised.
+        [Q_opt, l_opt, L_opt] = theta_to_Ql(theta_opt, n, cond_max);
+
+        % ---- Conditioning diagnostics -----------------------------------
+        eig_Q_opt  = sort(eig(Q_opt));
+        cond_Q_opt = eig_Q_opt(end) / eig_Q_opt(1);
+        fprintf('    cond(Q) = %.3e   lambda_min = %.3e   trace(Q) = %.4f (n = %d)\n', ...
+            cond_Q_opt, eig_Q_opt(1), trace(Q_opt), n);
+        if cond_Q_opt > cond_max * (1 + 1e-6)
+            warning('main:condExceeded', ...
+                'cond(Q) = %.3e exceeds cond_max = %.3e; check constraint feasibility.', ...
+                cond_Q_opt, cond_max);
+        end
 
         % ---- Predicted forces (needed for RMSE and figure) --------------
         Fout = QP_subroutine(Q_opt, l_opt, data, vars, model, ...
@@ -130,6 +161,7 @@ for si = 1:length(subjects)
 
         save([fname_base '.mat'], ...
             'theta_opt', 'Q_opt', 'L_opt', 'l_opt', ...
+            'cond_max', 'eps_shift', 'cond_Q_opt', 'eig_Q_opt', ...
             'fval_opt', 'ef_opt', 'out_opt', 'lambda_opt', 'grad_opt', 'hess_opt', ...
             'rmse_per_trial', ...
             'sample_list', 'trial_list', 'speed_list', 'leg_list', 'subject_id', 'n');
