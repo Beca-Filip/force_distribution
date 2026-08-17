@@ -27,14 +27,22 @@ function [Q, l, L, eps_shift] = theta_to_Ql(theta, n, cond_max)
 %      objective has an exact flat direction.  fmincon spends its budget
 %      sliding along it.
 %
-%   2. Conditioning.  Nothing stops L from becoming near-singular.  Measured
-%      over the 20 per-condition fits produced before this constraint existed:
-%      every one had cond(Q) > 1e4, the median was 4.9e14, and two had a
-%      slightly NEGATIVE smallest eigenvalue.  Those runs start from Q0 = I
-%      (cond = 1), so the optimiser WALKS there.  A Q that is numerically rank
-%      deficient makes the DOC minimiser non-unique, which makes the fit
-%      meaningless: it is being scored against an arbitrary member of a
-%      solution set.
+%   2. Conditioning.  Nothing stops L from becoming near-singular.  A Q that
+%      is numerically rank deficient makes the DOC minimiser non-unique, which
+%      makes the fit meaningless: it is being scored against an arbitrary
+%      member of a solution set.
+%
+%      This is not hypothetical.  Both runs start from Q0 = I (cond = 1), so
+%      the optimiser WALKS to the bad region.  Controlled comparison on
+%      subject 4 / speed 1 / leg 1 (11 samples x 2 trials), same data, same
+%      start, only cond_max differing:
+%
+%          cond_max = Inf,  40 iters:  E = 8.49   cond(Q) = 9.6e17
+%          cond_max = 1e4, 150 iters:  E = 8.44   cond(Q) = 188
+%
+%      Identical fit quality, fifteen orders of magnitude of conditioning.
+%      The ill-conditioning buys nothing, so there is no accuracy argument
+%      for leaving it unconstrained.
 %
 %   Both are fixed by the pair (shift, trace constraint):
 %

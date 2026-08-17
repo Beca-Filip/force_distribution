@@ -20,11 +20,11 @@ function [theta_opt, fval_opt, varargout] = QP_IO_fmincon_search(theta0, data, v
 %
 %       cond(Q) <= cond_max
 %
-%   holds exactly.  Pass Inf to recover the old unconstrained behaviour --
-%   which produced fits with a median cond(Q) of 4.9e14 and is kept only to
-%   reproduce them.  See THETA_TO_QL for why the constraint has to be an
-%   equality (it is what removes the (Q,l) -> (cQ,cl) scale gauge) and
-%   QP_TRACE_CONSTRAINT for the residual and its gradient.
+%   holds exactly.  Pass Inf to drop both the shift and the constraint, which
+%   is the unconstrained formulation -- useful as an ablation.  See
+%   THETA_TO_QL for why the constraint has to be an equality (it is what
+%   removes the (Q,l) -> (cQ,cl) scale gauge) and QP_TRACE_CONSTRAINT for the
+%   residual and its gradient.
 %
 %   theta0 SHOULD SATISFY the constraint: ||q0||^2 = n*(1 - n/cond_max).
 %   L0 = sqrt(1 - n/cond_max) * I gives exactly that, and yields Q0 = I.
