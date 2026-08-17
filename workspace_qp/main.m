@@ -120,9 +120,14 @@ for si = 1:length(subjects)
         fprintf('  Subject %d  Speed %d  Leg %d\n', subject_id, speed_list, leg_list);
 
         % ---- IO search --------------------------------------------------
+        % Timed, because funcCount alone does not tell us how long a fit took
+        % and the per-condition runs are the budget estimate for the pooled
+        % ones.  summarize_main_results reads t_fit_s.
+        t_fit = tic;
         [theta_opt, fval_opt, ef_opt, out_opt, lambda_opt, grad_opt, hess_opt] = ...
             QP_IO_fmincon_search(theta0, data, vars, model, ...
                 sample_list, trial_list, speed_list, leg_list, cond_max);
+        t_fit_s = toc(t_fit);
 
         % ---- Reconstruct Q and l ----------------------------------------
         % Must go through theta_to_Ql with the SAME cond_max, otherwise the
@@ -163,7 +168,7 @@ for si = 1:length(subjects)
             'theta_opt', 'Q_opt', 'L_opt', 'l_opt', ...
             'cond_max', 'eps_shift', 'cond_Q_opt', 'eig_Q_opt', ...
             'fval_opt', 'ef_opt', 'out_opt', 'lambda_opt', 'grad_opt', 'hess_opt', ...
-            'rmse_per_trial', ...
+            'rmse_per_trial', 't_fit_s', ...
             'sample_list', 'trial_list', 'speed_list', 'leg_list', 'subject_id', 'n');
 
         % ---- Save prediction comparison figure --------------------------
