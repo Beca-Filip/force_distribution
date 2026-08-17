@@ -57,20 +57,11 @@ for si = 1:length(subjects)
     %   data.J_min, data.J_max  (cost normalisation for the DO formulation)
     %   data.vmt, data.M, data.fpassive, data.pcsa, data.f0, data.mass, data.r
 
-    % ---- Fix force bounds (ensure f is strictly feasible) ---------------
-    data.fmax(data.fmax <= data.f) = 1.003 * data.f(data.fmax <= data.f);
-    data.fmin(data.fmin >= data.f) = 0.997 * data.f(data.fmin >= data.f);
-
-    epsil = 0.01;
-    data.fmax(abs(data.fmax - data.f) < epsil) = ...
-        data.fmax(abs(data.fmax - data.fmin) < epsil) + epsil;
-    data.fmin(abs(data.f - data.fmin) < epsil) = max( ...
-        zeros(size(data.fmin(abs(data.f - data.fmin) < epsil))), ...
-        data.fmin(abs(data.f - data.fmin) < epsil) - epsil);
-
-    % ---- Force-space normalisation (computed from all data) -------------
-    data.f_mean   = compute_f_mean(data.f);
-    data.F_invcov = compute_F_invcov(data.f, data.f_mean);
+    % ---- Bound repair + force-space normalisation -----------------------
+    % Shared with the pooled scripts.  It has to be the same code in both, or
+    % the per-condition vs pooled comparison compares data preparation as
+    % much as it compares objectives.
+    data = prepare_qp_data(data);
 
     % ---- Build QP model -------------------------------------------------
     n = size(data.f, 1);
