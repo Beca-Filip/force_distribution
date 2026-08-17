@@ -65,23 +65,26 @@ function [Q_to, l_to, remap_info] = remap_qp_to_subject(Q_from, l_from, names_fr
 %     'psd_tol' Relative tolerance for the PSD check. Default 1e-10.
 %     'verbose' Print a summary. Default false.
 %
-%   IMPORTANT CAVEAT -- ORDER-DEPENDENT WHITENING
-%   ---------------------------------------------
+%   DEPENDENCE ON THE WHITENING
+%   ---------------------------
 %   Q does not act on raw forces.  The cost is
 %       0.5*f_norm'*Q*f_norm + l'*f_norm,   f_norm = W*(f - mu),
-%   and compute_F_invcov builds W = inv(chol(Sigma,'lower')), which is LOWER
-%   TRIANGULAR and therefore ORDER-DEPENDENT: coordinate i of f_norm is
-%   muscle i's residual after regressing out muscles 1..i-1.  Cholesky is not
-%   permutation-equivariant, so "coordinate i" does not mean the same thing
-%   for two subjects with different muscle orderings.  Inserting tfl at P5
-%   index 18 shifts the conditioning set of every later coordinate.
+%   so this function is only exact if coordinate i of f_norm means the same
+%   thing for both subjects.  That is a property of W, not of this code.
 %
-%   This function remaps INDICES correctly and exactly.  It cannot repair a
-%   mismatch in what those indices mean.  Treat a cross-subject transfer
-%   under Cholesky whitening as an approximation.  A symmetric whitening
-%   (Sigma^-1/2) or a diagonal one (per-muscle z-score) IS permutation-
-%   equivariant and would make this remap exact; both require changing
-%   compute_F_invcov and re-running the fits.
+%   compute_F_invcov now defaults to the SYMMETRIC whitening W = Sigma^(-1/2),
+%   which is permutation-equivariant: permuting the muscles permutes f_norm
+%   the same way and nothing else changes.  Under that default this remap is
+%   exact, and tests/TestWhitening.m checks it end to end.
+%
+%   The 'cholesky' option is NOT equivariant.  W = inv(chol(Sigma,'lower'))
+%   is lower triangular, so coordinate i is muscle i's residual after
+%   regressing out muscles 1..i-1; inserting tfl at P5 index 18 shifts the
+%   conditioning set of every later coordinate.  This function remaps INDICES
+%   correctly and exactly, but it cannot repair a mismatch in what those
+%   indices mean.  A transfer built on Cholesky-whitened fits is an
+%   approximation, and fits made before the 2026-08-14 switch are all of that
+%   kind.
 %
 %   SCALE
 %   -----
