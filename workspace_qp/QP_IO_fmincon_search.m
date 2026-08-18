@@ -1,4 +1,4 @@
-function [theta_opt, fval_opt, varargout] = QP_IO_fmincon_search(theta0, data, vars, model, sample_list, trial_list, speed_list, leg_list, cond_max, fmc_overrides)
+function [theta_opt, fval_opt, varargout] = QP_IO_fmincon_search(theta0, data, vars, model, sample_list, trial_list, speed_list, leg_list, cond_max, fmc_overrides, sol_opt)
 %QP_IO_FMINCON_SEARCH Local gradient-based IO search over QP cost weights.
 %
 %   [theta_opt, fval_opt] = QP_IO_FMINCON_SEARCH(theta0, data, vars, model,
@@ -9,6 +9,12 @@ function [theta_opt, fval_opt, varargout] = QP_IO_fmincon_search(theta0, data, v
 %       struct('Display','off', 'PlotFcn',{{}}, 'MaxIterations',50)
 %   Required for headless or batch runs: the default PlotFcn opens four
 %   figures per fit.
+%
+%   sol_opt is optional and is the solver option struct the model was
+%   configured with.  Passing it routes every QP through QP_SOLVE, which
+%   retries a hard QP at a relaxed tolerance instead of raising a CasADi
+%   error that ends the batch.  Any run longer than a few minutes should
+%   pass it.
 %
 %   theta0 is an initial vector of length n*(n+1)/2 + n:
 %     theta(1 : n*(n+1)/2)     -> lower-triangular entries of L
@@ -51,8 +57,12 @@ if nargin < 10 || isempty(fmc_overrides)
     fmc_overrides = struct();
 end
 
+if nargin < 11
+    sol_opt = [];
+end
+
 % Cost function
-fun = @(theta) QP_IO_inner_loop(theta, data, vars, model, sample_list, trial_list, speed_list, leg_list, cond_max);
+fun = @(theta) QP_IO_inner_loop(theta, data, vars, model, sample_list, trial_list, speed_list, leg_list, cond_max, sol_opt);
 
 % Initial solution
 theta0 = reshape(theta0, [], 1);

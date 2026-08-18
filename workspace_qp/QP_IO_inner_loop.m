@@ -1,4 +1,4 @@
-function [E, varargout] = QP_IO_inner_loop(theta, data, vars, model, sample_list, trial_list, speed_list, leg_list, cond_max)
+function [E, varargout] = QP_IO_inner_loop(theta, data, vars, model, sample_list, trial_list, speed_list, leg_list, cond_max, sol_opt)
 %QP_IO_INNER_LOOP  RMSE (and optionally its gradient) for the QP IO problem.
 %
 %   E        = QP_IO_INNER_LOOP(theta, ...)   objective only
@@ -22,11 +22,20 @@ function [E, varargout] = QP_IO_inner_loop(theta, data, vars, model, sample_list
 %   Q = L*L'.  The trace constraint that completes the conditioning guarantee
 %   is imposed by QP_IO_FMINCON_SEARCH, not here; this function is just the
 %   objective and stays well defined at any theta.
+%
+%   sol_opt is optional.  When given it is the solver option struct the model
+%   was configured with, and every QP goes through QP_SOLVE's tolerance
+%   ladder instead of a bare model.solve() that raises and ends the run.
+%   Batch runs should always pass it; see QP_SOLVE for what it costs.
 
 n = size(vars.variables.f, 1);
 
 if nargin < 9 || isempty(cond_max)
     cond_max = 1e4;
+end
+
+if nargin < 10
+    sol_opt = [];
 end
 
 % Q carries the eps_shift, L does not.  kkt_sensitivity needs exactly that
@@ -40,10 +49,10 @@ grad_flag = nargout > 1;
 
 if grad_flag
     [Fout, dFout] = QP_subroutine(Q, l, data, vars, model, ...
-        sample_list, trial_list, speed_list, leg_list, L);
+        sample_list, trial_list, speed_list, leg_list, L, sol_opt);
 else
     Fout = QP_subroutine(Q, l, data, vars, model, ...
-        sample_list, trial_list, speed_list, leg_list);
+        sample_list, trial_list, speed_list, leg_list, [], sol_opt);
 end
 
 E = rmse(Fref, Fout);
